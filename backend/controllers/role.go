@@ -75,9 +75,10 @@ func (rc *RoleController) GetAll(c *gin.Context) {
 
 func (rc *RoleController) Create(c *gin.Context) {
 	var req struct {
-		Name   string `json:"name" binding:"required"`
-		Code   string `json:"code" binding:"required"`
-		Enable *bool  `json:"enable"`
+		Name          string `json:"name" binding:"required"`
+		Code          string `json:"code" binding:"required"`
+		Enable        *bool  `json:"enable"`
+		PermissionIds []uint `json:"permissionIds"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{
@@ -104,6 +105,14 @@ func (rc *RoleController) Create(c *gin.Context) {
 		return
 	}
 
+	// 分配权限
+	if len(req.PermissionIds) > 0 {
+		var permissions []models.Permission
+		if err := config.DB.Where("id IN ?", req.PermissionIds).Find(&permissions).Error; err == nil {
+			config.DB.Model(&role).Association("Permissions").Append(&permissions)
+		}
+	}
+
 	c.JSON(http.StatusOK, models.Response{
 		Code:      0,
 		Message:   "OK",
@@ -115,9 +124,10 @@ func (rc *RoleController) Create(c *gin.Context) {
 func (rc *RoleController) Update(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
-		Name   string `json:"name"`
-		Code   string `json:"code"`
-		Enable *bool  `json:"enable"`
+		Name          string `json:"name"`
+		Code          string `json:"code"`
+		Enable        *bool  `json:"enable"`
+		PermissionIds []uint `json:"permissionIds"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{
@@ -128,6 +138,18 @@ func (rc *RoleController) Update(c *gin.Context) {
 		return
 	}
 
+	// 查询角色
+	var role models.Role
+	if err := config.DB.First(&role, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, models.Response{
+			Code:      404,
+			Message:   "Role not found",
+			OriginUrl: c.Request.URL.Path,
+		})
+		return
+	}
+
+	// 更新角色基本信息
 	updates := make(map[string]interface{})
 	if req.Name != "" {
 		updates["name"] = req.Name
@@ -139,13 +161,36 @@ func (rc *RoleController) Update(c *gin.Context) {
 		updates["enable"] = *req.Enable
 	}
 
-	if err := config.DB.Model(&models.Role{}).Where("id = ?", id).Updates(updates).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, models.Response{
-			Code:      500,
-			Message:   "Failed to update role",
-			OriginUrl: c.Request.URL.Path,
-		})
-		return
+	if len(updates) > 0 {
+		if err := config.DB.Model(&role).Updates(updates).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, models.Response{
+				Code:      500,
+				Message:   "Failed to update role",
+				OriginUrl: c.Request.URL.Path,
+			})
+			return
+		}
+	}
+
+	// 更新权限关联
+	if req.PermissionIds != nil {
+		var permissions []models.Permission
+		if err := config.DB.Where("id IN ?", req.PermissionIds).Find(&permissions).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, models.Response{
+				Code:      500,
+				Message:   "Failed to query permissions",
+				OriginUrl: c.Request.URL.Path,
+			})
+			return
+		}
+		if err := config.DB.Model(&role).Association("Permissions").Replace(&permissions); err != nil {
+			c.JSON(http.StatusInternalServerError, models.Response{
+				Code:      500,
+				Message:   "Failed to update role permissions",
+				OriginUrl: c.Request.URL.Path,
+			})
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, models.Response{

@@ -25,7 +25,7 @@
             <h3 class="mb-12">
               {{ currentMenu.name }}
             </h3>
-            <NButton size="small" type="primary" @click="handleEdit(currentMenu)">
+            <NButton v-permission="'EditResource'" size="small" type="primary" @click="handleEdit(currentMenu)">
               <i class="i-material-symbols:edit-outline mr-4 text-14" />
               编辑
             </NButton>
@@ -71,7 +71,7 @@
             <h3 class="mb-12">
               按钮
             </h3>
-            <NButton size="small" type="primary" @click="handleAddBtn">
+            <NButton v-permission="'AddResource'" size="small" type="primary" @click="handleAddBtn">
               <i class="i-fe:plus mr-4 text-14" />
               新增
             </NButton>
@@ -95,6 +95,7 @@
 <script setup>
 import { NButton, NSwitch } from 'naive-ui'
 import { MeCrud } from '@/components'
+import { withPermission } from '@/directives'
 import api from './api'
 import MenuTree from './components/MenuTree.vue'
 import ResAddOrEdit from './components/ResAddOrEdit.vue'
@@ -159,32 +160,37 @@ const btnsColumns = [
     fixed: 'right',
     render(row) {
       return [
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
-            style: 'margin-left: 12px;',
-            onClick: () => handleEditBtn(row),
-          },
-          {
-            default: () => '编辑',
-            icon: () => h('i', { class: 'i-material-symbols:edit-outline text-14' }),
-          },
+        withPermission(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              style: 'margin-left: 12px;',
+              onClick: () => handleEditBtn(row),
+            },
+            {
+              default: () => '编辑',
+              icon: () => h('i', { class: 'i-material-symbols:edit-outline text-14' }),
+            },
+          ),
+          'EditResource',
         ),
-
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'error',
-            style: 'margin-left: 12px;',
-            onClick: () => handleDeleteBtn(row.id),
-          },
-          {
-            default: () => '删除',
-            icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
-          },
+        withPermission(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'error',
+              style: 'margin-left: 12px;',
+              onClick: () => handleDeleteBtn(row.id),
+            },
+            {
+              default: () => '删除',
+              icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
+            },
+          ),
+          'DeleteResource',
         ),
       ]
     },

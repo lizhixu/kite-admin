@@ -33,27 +33,27 @@ func SetupRoutes(r *gin.Engine) {
 		// 用户相关
 		api.GET("/user/detail", userCtrl.GetDetail)
 		api.GET("/user", userCtrl.GetList)
-		api.POST("/user", userCtrl.Create)
-		api.DELETE("/user/:id", userCtrl.Delete)
-		api.PATCH("/user/:id", userCtrl.Update)
-		api.PATCH("/user/password/reset/:id", userCtrl.ResetPassword)
+		api.POST("/user", middleware.RequirePermission("AddUser"), userCtrl.Create)
+		api.DELETE("/user/:id", middleware.RequirePermission("DeleteUser"), userCtrl.Delete)
+		api.PATCH("/user/:id", middleware.RequirePermission("EditUser"), userCtrl.Update)
+		api.PATCH("/user/password/reset/:id", middleware.RequirePermission("ResetPassword"), userCtrl.ResetPassword)
 
 		// 角色相关
 		api.GET("/role/page", roleCtrl.GetPage)
 		api.GET("/role", roleCtrl.GetAll)
-		api.POST("/role", roleCtrl.Create)
-		api.PATCH("/role/:id", roleCtrl.Update)
-		api.DELETE("/role/:id", roleCtrl.Delete)
-		api.PATCH("/role/users/add/:id", roleCtrl.AddUsers)
-		api.PATCH("/role/users/remove/:id", roleCtrl.RemoveUsers)
+		api.POST("/role", middleware.RequirePermission("AddRole"), roleCtrl.Create)
+		api.PATCH("/role/:id", middleware.RequirePermission("EditRole"), roleCtrl.Update)
+		api.DELETE("/role/:id", middleware.RequirePermission("DeleteRole"), roleCtrl.Delete)
+		api.PATCH("/role/users/add/:id", middleware.RequirePermission("AssignPermission"), roleCtrl.AddUsers)
+		api.PATCH("/role/users/remove/:id", middleware.RequirePermission("AssignPermission"), roleCtrl.RemoveUsers)
 
 		// 权限相关
 		api.GET("/role/permissions/tree", permCtrl.GetRolePermissionsTree)
 		api.GET("/permission/menu/tree", permCtrl.GetMenuTree)
 		api.GET("/permission/tree", permCtrl.GetTree)
 		api.GET("/permission/button/:parentId", permCtrl.GetButtonsByParentID)
-		api.POST("/permission", permCtrl.Create)
-		api.PATCH("/permission/:id", permCtrl.Update)
-		api.DELETE("/permission/:id", permCtrl.Delete)
+		api.POST("/permission", middleware.RequirePermission("AddResource"), permCtrl.Create)
+		api.PATCH("/permission/:id", middleware.RequirePermission("EditResource"), permCtrl.Update)
+		api.DELETE("/permission/:id", middleware.RequirePermission("DeleteResource"), permCtrl.Delete)
 	}
 }

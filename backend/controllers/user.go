@@ -107,8 +107,15 @@ func (uc *UserController) GetList(c *gin.Context) {
 
 func (uc *UserController) Create(c *gin.Context) {
 	var req struct {
-		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"`
+		Username string  `json:"username" binding:"required"`
+		Password string  `json:"password" binding:"required"`
+		Enable   *bool   `json:"enable"`
+		RoleIds  []uint  `json:"roleIds"`
+		NickName *string `json:"nickName"`
+		Gender   *string `json:"gender"`
+		Avatar   *string `json:"avatar"`
+		Address  *string `json:"address"`
+		Email    *string `json:"email"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -133,7 +140,11 @@ func (uc *UserController) Create(c *gin.Context) {
 	user := models.User{
 		Username: req.Username,
 		Password: hashedPassword,
-		Enable:   true,
+	}
+	if req.Enable != nil {
+		user.Enable = *req.Enable
+	} else {
+		user.Enable = true
 	}
 
 	if err := config.DB.Create(&user).Error; err != nil {
@@ -143,6 +154,35 @@ func (uc *UserController) Create(c *gin.Context) {
 			OriginUrl: c.Request.URL.Path,
 		})
 		return
+	}
+
+	// 创建用户资料
+	if req.NickName != nil || req.Gender != nil || req.Avatar != nil || req.Address != nil || req.Email != nil {
+		profile := models.Profile{UserID: user.ID}
+		if req.NickName != nil {
+			profile.NickName = *req.NickName
+		}
+		if req.Gender != nil {
+			profile.Gender = req.Gender
+		}
+		if req.Avatar != nil {
+			profile.Avatar = *req.Avatar
+		}
+		if req.Address != nil {
+			profile.Address = req.Address
+		}
+		if req.Email != nil {
+			profile.Email = req.Email
+		}
+		config.DB.Create(&profile)
+	}
+
+	// 分配角色
+	if len(req.RoleIds) > 0 {
+		var roles []models.Role
+		if err := config.DB.Where("id IN ?", req.RoleIds).Find(&roles).Error; err == nil {
+			config.DB.Model(&user).Association("Roles").Append(&roles)
+		}
 	}
 
 	c.JSON(http.StatusOK, models.Response{
@@ -156,7 +196,14 @@ func (uc *UserController) Create(c *gin.Context) {
 func (uc *UserController) Update(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
-		Enable *bool `json:"enable"`
+		Username string  `json:"username"`
+		Enable   *bool   `json:"enable"`
+		RoleIds  []uint  `json:"roleIds"`
+		NickName *string `json:"nickName"`
+		Gender   *string `json:"gender"`
+		Avatar   *string `json:"avatar"`
+		Address  *string `json:"address"`
+		Email    *string `json:"email"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{
@@ -167,11 +214,96 @@ func (uc *UserController) Update(c *gin.Context) {
 		return
 	}
 
+	// 查询用户
+	var user models.User
+	if err := config.DB.Preload("Profile").First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, models.Response{
+			Code:      404,
+			Message:   "User not found",
+			OriginUrl: c.Request.URL.Path,
+		})
+		return
+	}
+
+	// 更新用户基本信息
+	updates := make(map[string]interface{})
+	if req.Username != "" {
+		updates["username"] = req.Username
+	}
 	if req.Enable != nil {
-		if err := config.DB.Model(&models.User{}).Where("id = ?", id).Update("enable", *req.Enable).Error; err != nil {
+		updates["enable"] = *req.Enable
+	}
+
+	if len(updates) > 0 {
+		if err := config.DB.Model(&user).Updates(updates).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, models.Response{
 				Code:      500,
 				Message:   "Failed to update user",
+				OriginUrl: c.Request.URL.Path,
+			})
+			return
+		}
+	}
+
+	// 更新用户资料
+	if req.NickName != nil || req.Gender != nil || req.Avatar != nil || req.Address != nil || req.Email != nil {
+		profileUpdates := make(map[string]interface{})
+		if req.NickName != nil {
+			profileUpdates["nick_name"] = *req.NickName
+		}
+		if req.Gender != nil {
+			profileUpdates["gender"] = *req.Gender
+		}
+		if req.Avatar != nil {
+			profileUpdates["avatar"] = *req.Avatar
+		}
+		if req.Address != nil {
+			profileUpdates["address"] = *req.Address
+		}
+		if req.Email != nil {
+			profileUpdates["email"] = *req.Email
+		}
+
+		if user.Profile != nil {
+			// 更新现有资料
+			config.DB.Model(&user.Profile).Updates(profileUpdates)
+		} else {
+			// 创建新资料
+			profile := models.Profile{UserID: user.ID}
+			if req.NickName != nil {
+				profile.NickName = *req.NickName
+			}
+			if req.Gender != nil {
+				profile.Gender = req.Gender
+			}
+			if req.Avatar != nil {
+				profile.Avatar = *req.Avatar
+			}
+			if req.Address != nil {
+				profile.Address = req.Address
+			}
+			if req.Email != nil {
+				profile.Email = req.Email
+			}
+			config.DB.Create(&profile)
+		}
+	}
+
+	// 更新角色关联
+	if req.RoleIds != nil {
+		var roles []models.Role
+		if err := config.DB.Where("id IN ?", req.RoleIds).Find(&roles).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, models.Response{
+				Code:      500,
+				Message:   "Failed to query roles",
+				OriginUrl: c.Request.URL.Path,
+			})
+			return
+		}
+		if err := config.DB.Model(&user).Association("Roles").Replace(&roles); err != nil {
+			c.JSON(http.StatusInternalServerError, models.Response{
+				Code:      500,
+				Message:   "Failed to update user roles",
 				OriginUrl: c.Request.URL.Path,
 			})
 			return

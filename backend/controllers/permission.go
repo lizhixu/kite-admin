@@ -176,9 +176,9 @@ func (pc *PermissionController) Create(c *gin.Context) {
 func (pc *PermissionController) Update(c *gin.Context) {
 	id := c.Param("id")
 	var req struct {
-		Name        string  `json:"name"`
-		Code        string  `json:"code"`
-		Type        string  `json:"type"`
+		Name        *string `json:"name"`
+		Code        *string `json:"code"`
+		Type        *string `json:"type"`
 		ParentID    *uint   `json:"parentId"`
 		Path        *string `json:"path"`
 		Redirect    *string `json:"redirect"`
@@ -203,41 +203,41 @@ func (pc *PermissionController) Update(c *gin.Context) {
 	}
 
 	updates := make(map[string]interface{})
-	if req.Name != "" {
-		updates["name"] = req.Name
+	if req.Name != nil {
+		updates["name"] = *req.Name
 	}
-	if req.Code != "" {
-		updates["code"] = req.Code
+	if req.Code != nil {
+		updates["code"] = *req.Code
 	}
-	if req.Type != "" {
-		updates["type"] = req.Type
+	if req.Type != nil {
+		updates["type"] = *req.Type
 	}
 	if req.ParentID != nil {
-		updates["parent_id"] = req.ParentID
+		updates["parent_id"] = *req.ParentID
 	}
 	if req.Path != nil {
-		updates["path"] = req.Path
+		updates["path"] = *req.Path
 	}
 	if req.Redirect != nil {
-		updates["redirect"] = req.Redirect
+		updates["redirect"] = *req.Redirect
 	}
 	if req.Icon != nil {
-		updates["icon"] = req.Icon
+		updates["icon"] = *req.Icon
 	}
 	if req.Component != nil {
-		updates["component"] = req.Component
+		updates["component"] = *req.Component
 	}
 	if req.Layout != nil {
-		updates["layout"] = req.Layout
+		updates["layout"] = *req.Layout
 	}
 	if req.KeepAlive != nil {
-		updates["keep_alive"] = req.KeepAlive
+		updates["keep_alive"] = *req.KeepAlive
 	}
 	if req.Method != nil {
-		updates["method"] = req.Method
+		updates["method"] = *req.Method
 	}
 	if req.Description != nil {
-		updates["description"] = req.Description
+		updates["description"] = *req.Description
 	}
 	if req.Show != nil {
 		updates["show"] = *req.Show
@@ -247,6 +247,15 @@ func (pc *PermissionController) Update(c *gin.Context) {
 	}
 	if req.Order != nil {
 		updates["order"] = *req.Order
+	}
+
+	if len(updates) == 0 {
+		c.JSON(http.StatusBadRequest, models.Response{
+			Code:      400,
+			Message:   "No fields to update",
+			OriginUrl: c.Request.URL.Path,
+		})
+		return
 	}
 
 	if err := config.DB.Model(&models.Permission{}).Where("id = ?", id).Updates(updates).Error; err != nil {

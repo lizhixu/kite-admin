@@ -9,7 +9,7 @@
 <template>
   <CommonPage>
     <template #action>
-      <NButton type="primary" @click="handleAdd()">
+      <NButton v-permission="'AddRole'" type="primary" @click="handleAdd()">
         <i class="i-material-symbols:add mr-4 text-18" />
         新增角色
       </NButton>
@@ -98,6 +98,7 @@
 import { NButton, NSwitch } from 'naive-ui'
 import { MeCrud, MeModal, MeQueryItem } from '@/components'
 import { useCrud } from '@/composables'
+import { withPermission } from '@/directives'
 import api from './api'
 
 defineOptions({ name: 'RoleMgt' })
@@ -153,48 +154,56 @@ const columns = [
     fixed: 'right',
     render(row) {
       return [
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
-            secondary: true,
-            onClick: () =>
-              router.push({ path: `/pms/role/user/${row.id}`, query: { roleName: row.name } }),
-          },
-          {
-            default: () => '分配用户',
-            icon: () => h('i', { class: 'i-fe:user-plus text-14' }),
-          },
+        withPermission(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              secondary: true,
+              onClick: () =>
+                router.push({ path: `/pms/role/user/${row.id}`, query: { roleName: row.name } }),
+            },
+            {
+              default: () => '分配用户',
+              icon: () => h('i', { class: 'i-fe:user-plus text-14' }),
+            },
+          ),
+          'AssignPermission',
         ),
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
-            style: 'margin-left: 12px;',
-            disabled: row.code === 'SUPER_ADMIN',
-            onClick: () => handleEdit(row),
-          },
-          {
-            default: () => '编辑',
-            icon: () => h('i', { class: 'i-material-symbols:edit-outline text-14' }),
-          },
+        withPermission(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              style: 'margin-left: 12px;',
+              disabled: row.code === 'SUPER_ADMIN',
+              onClick: () => handleEdit(row),
+            },
+            {
+              default: () => '编辑',
+              icon: () => h('i', { class: 'i-material-symbols:edit-outline text-14' }),
+            },
+          ),
+          'EditRole',
         ),
-
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'error',
-            style: 'margin-left: 12px;',
-            disabled: row.code === 'SUPER_ADMIN',
-            onClick: () => handleDelete(row.id),
-          },
-          {
-            default: () => '删除',
-            icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
-          },
+        withPermission(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'error',
+              style: 'margin-left: 12px;',
+              disabled: row.code === 'SUPER_ADMIN',
+              onClick: () => handleDelete(row.id),
+            },
+            {
+              default: () => '删除',
+              icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
+            },
+          ),
+          'DeleteRole',
         ),
       ]
     },

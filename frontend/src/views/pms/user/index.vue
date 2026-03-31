@@ -237,46 +237,54 @@ const columns = [
           }),
           'SuperAdmin',
         ),
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
-            class: 'ml-12px',
-            secondary: true,
-            onClick: () => handleOpenRolesSet(row),
-          },
-          {
-            default: () => '分配角色',
-            icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
-          },
+        withPermission(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              class: 'ml-12px',
+              secondary: true,
+              onClick: () => handleOpenRolesSet(row),
+            },
+            {
+              default: () => '分配角色',
+              icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
+            },
+          ),
+          'EditUser',
         ),
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'primary',
-            style: 'margin-left: 12px;',
-            onClick: () => handleOpen({ action: 'reset', title: '重置密码', row, onOk: onSave }),
-          },
-          {
-            default: () => '重置密码',
-            icon: () => h('i', { class: 'i-radix-icons:reset text-14' }),
-          },
+        withPermission(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'primary',
+              style: 'margin-left: 12px;',
+              onClick: () => handleOpen({ action: 'reset', title: '重置密码', row, onOk: onSave }),
+            },
+            {
+              default: () => '重置密码',
+              icon: () => h('i', { class: 'i-radix-icons:reset text-14' }),
+            },
+          ),
+          'ResetPassword',
         ),
-
-        h(
-          NButton,
-          {
-            size: 'small',
-            type: 'error',
-            style: 'margin-left: 12px;',
-            onClick: () => handleDelete(row.id),
-          },
-          {
-            default: () => '删除',
-            icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
-          },
+        withPermission(
+          h(
+            NButton,
+            {
+              size: 'small',
+              type: 'error',
+              style: 'margin-left: 12px;',
+              onClick: () => handleDelete(row.id),
+            },
+            {
+              default: () => '删除',
+              icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
+            },
+          ),
+          'DeleteUser',
         ),
       ]
     },
