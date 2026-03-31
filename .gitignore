@@ -1,0 +1,29 @@
+# Backend
+backend/tmp_test
+backend/*.exe
+backend/backend
+
+# Environment files (keep .env.example)
+backend/.env
+
+# Go
+*.log
+*.out
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env.local
+frontend/.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
