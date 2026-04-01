@@ -70,7 +70,7 @@ func initDefaultData() {
 
 		// 角色管理
 		{ID: 3, Name: "角色管理", Code: "RoleMgt", Type: "MENU", ParentID: ptrUint(2), Path: ptrStr("/pms/role"), Icon: ptrStr("i-fe:user-check"), Component: ptrStr("/src/views/pms/role/index.vue"), Show: ptrBool(true), Enable: ptrBool(true), Order: 2},
-		{ID: 5, Name: "分配用户", Code: "RoleUser", Type: "MENU", ParentID: ptrUint(3), Path: ptrStr("/pms/role/user/:roleId"), Icon: ptrStr("i-fe:user-plus"), Component: ptrStr("/src/views/pms/role/role-user.vue"), Layout: ptrStr("full"), Show: ptrBool(false), Enable: ptrBool(true), Order: 1},
+		{ID: 5, Name: "分配用户", Code: "RoleUser", Type: "MENU", ParentID: ptrUint(3), Path: ptrStr("/pms/role/user/:roleId"), Icon: ptrStr("i-fe:user-plus"), Component: ptrStr("/src/views/pms/role/role-user.vue"), Show: ptrBool(false), Enable: ptrBool(true), Order: 1},
 		{ID: 14, Name: "新增角色", Code: "AddRole", Type: "BUTTON", ParentID: ptrUint(3), Show: ptrBool(true), Enable: ptrBool(true), Order: 1},
 		{ID: 15, Name: "编辑角色", Code: "EditRole", Type: "BUTTON", ParentID: ptrUint(3), Show: ptrBool(true), Enable: ptrBool(true), Order: 2},
 		{ID: 16, Name: "删除角色", Code: "DeleteRole", Type: "BUTTON", ParentID: ptrUint(3), Show: ptrBool(true), Enable: ptrBool(true), Order: 3},

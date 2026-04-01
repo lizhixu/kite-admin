@@ -203,7 +203,32 @@ func (rc *RoleController) Update(c *gin.Context) {
 
 func (rc *RoleController) Delete(c *gin.Context) {
 	id := c.Param("id")
-	if err := config.DB.Delete(&models.Role{}, id).Error; err != nil {
+
+	var role models.Role
+	if err := config.DB.First(&role, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, models.Response{
+			Code:      404,
+			Message:   "Role not found",
+			OriginUrl: c.Request.URL.Path,
+		})
+		return
+	}
+
+	if role.Code == "SUPER_ADMIN" {
+		c.JSON(http.StatusBadRequest, models.Response{
+			Code:      400,
+			Message:   "Super Admin role cannot be deleted",
+			OriginUrl: c.Request.URL.Path,
+		})
+		return
+	}
+
+	// 1. Clear many-to-many associations first to resolve foreign key constraints
+	config.DB.Model(&role).Association("Permissions").Clear()
+	config.DB.Model(&role).Association("Users").Clear()
+
+	// 2. Delete the role
+	if err := config.DB.Delete(&role).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, models.Response{
 			Code:      500,
 			Message:   "Failed to delete role",
@@ -211,6 +236,7 @@ func (rc *RoleController) Delete(c *gin.Context) {
 		})
 		return
 	}
+
 	c.JSON(http.StatusOK, models.Response{
 		Code:      0,
 		Message:   "OK",
