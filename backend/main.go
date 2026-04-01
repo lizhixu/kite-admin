@@ -3,6 +3,9 @@ package main
 import (
 	"backend/config"
 	"backend/models"
+	_ "backend/plugins/announcement"
+	"backend/plugins/core"
+	_ "backend/plugins/task_manager"
 	"backend/routes"
 	"backend/utils"
 	"log"
@@ -25,6 +28,10 @@ func main() {
 		&models.Profile{},
 		&models.Role{},
 		&models.Permission{},
+		&core.InstalledPlugin{},
+		&models.StorageConfig{},
+		&models.AttachmentGroup{},
+		&models.Attachment{},
 	); err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
@@ -37,6 +44,9 @@ func main() {
 
 	// 设置路由
 	routes.SetupRoutes(r)
+
+	// 恢复已安装插件的路由
+	core.InitInstalled()
 
 	// 启动服务器
 	log.Printf("Server starting on port %s", cfg.Server.Port)
@@ -62,6 +72,12 @@ func initDefaultData() {
 		// 系统管理
 		{ID: 2, Name: "系统管理", Code: "SysMgt", Type: "MENU", Icon: ptrStr("i-fe:grid"), Show: ptrBool(true), Enable: ptrBool(true), Order: 1},
 
+		// 插件管理
+		{ID: 22, Name: "插件管理", Code: "PluginMgt", Type: "MENU", ParentID: ptrUint(2), Path: ptrStr("/pms/plugin"), Icon: ptrStr("i-fe:layers"), Component: ptrStr("/src/views/pms/plugin/index.vue"), Show: ptrBool(true), Enable: ptrBool(true), Order: 4},
+		{ID: 23, Name: "安装插件", Code: "InstallPlugin", Type: "BUTTON", ParentID: ptrUint(22), Show: ptrBool(true), Enable: ptrBool(true), Order: 1},
+		{ID: 24, Name: "卸载插件", Code: "UninstallPlugin", Type: "BUTTON", ParentID: ptrUint(22), Show: ptrBool(true), Enable: ptrBool(true), Order: 2},
+		{ID: 25, Name: "启停插件", Code: "EnablePlugin", Type: "BUTTON", ParentID: ptrUint(22), Show: ptrBool(true), Enable: ptrBool(true), Order: 3},
+
 		// 资源管理
 		{ID: 1, Name: "资源管理", Code: "Resource_Mgt", Type: "MENU", ParentID: ptrUint(2), Path: ptrStr("/pms/resource"), Icon: ptrStr("i-fe:list"), Component: ptrStr("/src/views/pms/resource/index.vue"), Show: ptrBool(true), Enable: ptrBool(true), Order: 1},
 		{ID: 11, Name: "新增资源", Code: "AddResource", Type: "BUTTON", ParentID: ptrUint(1), Show: ptrBool(true), Enable: ptrBool(true), Order: 1},
@@ -85,6 +101,12 @@ func initDefaultData() {
 
 		// 个人资料（不在菜单显示）
 		{ID: 8, Name: "个人资料", Code: "UserProfile", Type: "MENU", Path: ptrStr("/profile"), Icon: ptrStr("i-fe:user"), Component: ptrStr("/src/views/profile/index.vue"), Show: ptrBool(false), Enable: ptrBool(true), Order: 99},
+
+		// 附件管理
+		{ID: 26, Name: "附件管理", Code: "AttachmentMgt", Type: "MENU", ParentID: ptrUint(2), Path: ptrStr("/attachment"), Icon: ptrStr("i-fe:paperclip"), Component: ptrStr("/src/views/attachment/index.vue"), Show: ptrBool(true), Enable: ptrBool(true), Order: 5},
+		{ID: 27, Name: "存储设置", Code: "AttachmentSettings", Type: "MENU", ParentID: ptrUint(26), Path: ptrStr("/attachment/settings"), Component: ptrStr("/src/views/attachment/settings.vue"), Show: ptrBool(false), Enable: ptrBool(true), Order: 1},
+		{ID: 28, Name: "删除附件", Code: "DeleteAttachment", Type: "BUTTON", ParentID: ptrUint(26), Show: ptrBool(true), Enable: ptrBool(true), Order: 1},
+		{ID: 29, Name: "管理存储配置", Code: "ManageAttachmentConfig", Type: "BUTTON", ParentID: ptrUint(26), Show: ptrBool(true), Enable: ptrBool(true), Order: 2},
 	}
 	for i := range permissions {
 		config.DB.Create(&permissions[i])

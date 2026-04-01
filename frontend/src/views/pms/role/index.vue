@@ -15,69 +15,57 @@
       </NButton>
     </template>
 
-    <MeCrud
-      ref="$table"
-      v-model:query-items="queryItems"
-      :scroll-x="1200"
-      :columns="columns"
-      :get-data="api.read"
-    >
+    <MeCrud ref="$table" v-model:query-items="queryItems" :scroll-x="1200" :columns="columns" :get-data="api.read">
       <MeQueryItem label="角色名" :label-width="50">
         <n-input v-model:value="queryItems.name" type="text" placeholder="请输入角色名" clearable />
       </MeQueryItem>
       <MeQueryItem label="状态" :label-width="50">
-        <n-select
-          v-model:value="queryItems.enable"
-          clearable
-          :options="[
-            { label: '启用', value: 1 },
-            { label: '停用', value: 0 },
-          ]"
-        />
+        <n-select v-model:value="queryItems.enable" clearable :options="[
+          { label: '启用', value: 1 },
+          { label: '停用', value: 0 },
+        ]" />
       </MeQueryItem>
     </MeCrud>
-    <MeModal ref="modalRef" width="520px">
-      <n-form
-        ref="modalFormRef"
-        label-placement="left"
-        label-align="left"
-        :label-width="80"
-        :model="modalForm"
-      >
-        <n-form-item
-          label="角色名"
-          path="name"
-          :rule="{
-            required: true,
-            message: '请输入角色名',
-            trigger: ['input', 'blur'],
-          }"
-        >
+    <MeModal ref="modalRef" width="600px">
+      <n-form ref="modalFormRef" label-placement="left" label-align="left" :label-width="80" :model="modalForm">
+        <n-form-item label="角色名" path="name" :rule="{
+          required: true,
+          message: '请输入角色名',
+          trigger: ['input', 'blur'],
+        }">
           <n-input v-model:value="modalForm.name" />
         </n-form-item>
-        <n-form-item
-          label="角色编码"
-          path="code"
-          :rule="{
-            required: true,
-            message: '请输入角色编码',
-            trigger: ['input', 'blur'],
-          }"
-        >
+        <n-form-item label="角色编码" path="code" :rule="{
+          required: true,
+          message: '请输入角色编码',
+          trigger: ['input', 'blur'],
+        }">
           <n-input v-model:value="modalForm.code" :disabled="modalAction !== 'add'" />
         </n-form-item>
         <n-form-item label="权限" path="permissionIds">
-          <n-tree
-            key-field="id"
-            label-field="name"
-            :selectable="false"
-            :data="permissionTree"
-            :checked-keys="modalForm.permissionIds"
-            :on-update:checked-keys="(keys) => (modalForm.permissionIds = keys)"
-
-            checkable check-on-click default-expand-all
-            class="cus-scroll max-h-200 w-full"
-          />
+          <div class="w-full">
+            <!-- 搜索 + 操作按钮 -->
+            <div class="flex items-center gap-8 mb-8">
+              <n-input v-model:value="permSearch" size="small" placeholder="搜索权限名称…" clearable style="flex: 1">
+                <template #prefix>
+                  <i class="i-fe:search text-14" />
+                </template>
+              </n-input>
+              <n-button size="small" @click="selectAllPermissions">全选</n-button>
+              <n-button size="small" @click="clearAllPermissions">清空</n-button>
+            </div>
+            <!-- 已选数量 -->
+            <div style="font-size:12px;color:#999;margin-bottom:6px">
+              已选 <b style="color:var(--primary-color)">{{ modalForm.permissionIds?.length || 0 }}</b> / {{
+                allPermissionIds.length }} 项
+            </div>
+            <!-- 权限树 -->
+            <n-tree key-field="id" label-field="name" :selectable="false" :data="permissionTree"
+              :checked-keys="modalForm.permissionIds"
+              :on-update:checked-keys="(keys) => (modalForm.permissionIds = getKeysWithAncestors(keys))"
+              :pattern="permSearch" checkable check-on-click default-expand-all class="cus-scroll w-full"
+              style="max-height:380px" />
+          </div>
         </n-form-item>
         <n-form-item label="状态" path="enable">
           <NSwitch v-model:value="modalForm.enable">
@@ -226,4 +214,53 @@ async function handleEnable(row) {
 
 const permissionTree = ref([])
 api.getAllPermissionTree().then(({ data = [] }) => (permissionTree.value = data))
+
+// 权限搜索
+const permSearch = ref('')
+
+// 收集所有权限 ID（用于全选）
+function collectIds(nodes) {
+  const ids = []
+  const walk = (list) => {
+    list.forEach((n) => {
+      ids.push(n.id)
+      if (n.children?.length) walk(n.children)
+    })
+  }
+  walk(nodes)
+  return ids
+}
+const allPermissionIds = computed(() => collectIds(permissionTree.value))
+
+function selectAllPermissions() {
+  modalForm.value.permissionIds = [...allPermissionIds.value]
+}
+function clearAllPermissions() {
+  modalForm.value.permissionIds = []
+}
+
+// 选中子节点时自动将所有祖先一并勾选
+const parentMap = computed(() => {
+  const map = {}
+  const walk = (nodes, pid = null) => {
+    nodes.forEach((n) => {
+      map[n.id] = pid
+      if (n.children?.length) walk(n.children, n.id)
+    })
+  }
+  walk(permissionTree.value)
+  return map
+})
+
+function getKeysWithAncestors(keys) {
+  const result = new Set(keys)
+  keys.forEach((id) => {
+    let pid = parentMap.value[id]
+    while (pid != null) {
+      result.add(pid)
+      pid = parentMap.value[pid]
+    }
+  })
+  return [...result]
+}
 </script>

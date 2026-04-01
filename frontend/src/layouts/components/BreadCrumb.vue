@@ -11,17 +11,10 @@
     <n-breadcrumb-item v-if="!breadItems?.length" :clickable="false">
       {{ route.meta.title }}
     </n-breadcrumb-item>
-    <n-breadcrumb-item
-      v-for="(item, index) of breadItems"
-      v-else
-      :key="item.code"
-      :clickable="!!item.path"
-      @click="handleItemClick(item)"
-    >
-      <n-dropdown
-        :options="index < breadItems.length - 1 ? getDropOptions(item.children) : []"
-        @select="handleDropSelect"
-      >
+    <n-breadcrumb-item v-for="(item, index) of breadItems" v-else :key="item.code" :clickable="!!item.path"
+      @click="handleItemClick(item)">
+      <n-dropdown :options="index < breadItems.length - 1 ? getDropOptions(item.children) : []"
+        @select="handleDropSelect">
         <div class="flex items-center">
           <i :class="item.icon" class="mr-8" />
           {{ item.name }}
@@ -39,13 +32,47 @@ const route = useRoute()
 const permissionStore = usePermissionStore()
 
 const breadItems = ref([])
+
+/** 根据 parentKey meta 链构建祖先面包屑（找不到权限树节点时的兜底） */
+function buildFromParentKey(currentRoute) {
+  const items = []
+  let parentKey = currentRoute.meta?.parentKey
+  while (parentKey) {
+    const parentRoute = router.getRoutes().find(r => r.name === parentKey)
+    if (!parentRoute) break
+    items.unshift({
+      code: parentRoute.name,
+      name: parentRoute.meta?.title || String(parentRoute.name),
+      icon: parentRoute.meta?.icon,
+      path: parentRoute.path,
+    })
+    parentKey = parentRoute.meta?.parentKey
+  }
+  items.push({
+    code: currentRoute.name,
+    name: currentRoute.meta?.title || String(currentRoute.name),
+    icon: currentRoute.meta?.icon,
+    path: currentRoute.path,
+  })
+  return items
+}
+
 watch(
   () => route.name,
   (v) => {
-    breadItems.value = findMatchs(permissionStore.permissions, v)
+    const fromTree = findMatchs(permissionStore.permissions, v)
+    if (fromTree) {
+      breadItems.value = fromTree
+    }
+    else {
+      // 兜底：用路由 meta.parentKey 链构建面包屑（适用于隐藏子页面、权限未入库等场景）
+      const fallback = buildFromParentKey(route)
+      breadItems.value = fallback.length > 1 ? fallback : []
+    }
   },
   { immediate: true },
 )
+
 
 function findMatchs(tree, code, parents = []) {
   for (const item of tree) {

@@ -11,11 +11,7 @@
     <div class="flex h-full gap-x-12">
       <div class="w-320 shrink-0 h-full overflow-y-auto cus-scroll pr-12">
         <n-spin size="small" :show="treeLoading">
-          <MenuTree
-            v-model:current-menu="currentMenu"
-            :tree-data="treeData"
-            @refresh="initData"
-          />
+          <MenuTree v-model:current-menu="currentMenu" :tree-data="treeData" @refresh="initData" />
         </n-spin>
       </div>
 
@@ -77,13 +73,8 @@
             </NButton>
           </div>
 
-          <MeCrud
-            ref="$table"
-            :columns="btnsColumns"
-            :scroll-x="-1"
-            :get-data="api.getButtons"
-            :query-items="{ parentId: currentMenu.id }"
-          />
+          <MeCrud ref="$table" :columns="btnsColumns" :scroll-x="-1" :get-data="api.getButtons"
+            :query-items="{ parentId: currentMenu.id }" />
         </template>
         <n-empty v-else class="h-450 f-c-c" size="large" description="请选择菜单查看详情" />
       </div>

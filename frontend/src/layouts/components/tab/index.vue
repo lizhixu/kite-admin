@@ -8,30 +8,16 @@
 
 <template>
   <div id="top-tab">
-    <n-tabs
-      :value="tabStore.activeTab"
-      :closable="tabStore.tabs.length > 1"
-      type="card"
-      @close="(path) => tabStore.removeTab(path)"
-    >
-      <n-tab
-        v-for="item in tabStore.tabs"
-        :key="item.path"
-        :name="item.path"
-        @click="handleItemClick(item.path)"
-        @contextmenu.prevent="handleContextMenu($event, item)"
-      >
+    <n-tabs :value="tabStore.activeTab" type="card" @close="(path) => tabStore.removeTab(path)">
+      <n-tab v-for="item in tabStore.tabs" :key="item.path" :name="item.path"
+        :closable="item.path !== '/' && tabStore.tabs.length > 1" @click="handleItemClick(item.path)"
+        @contextmenu.prevent="handleContextMenu($event, item)">
         {{ item.title }}
       </n-tab>
     </n-tabs>
 
-    <ContextMenu
-      v-if="contextMenuOption.show"
-      v-model:show="contextMenuOption.show"
-      :current-path="contextMenuOption.currentPath"
-      :x="contextMenuOption.x"
-      :y="contextMenuOption.y"
-    />
+    <ContextMenu v-if="contextMenuOption.show" v-model:show="contextMenuOption.show"
+      :current-path="contextMenuOption.currentPath" :x="contextMenuOption.x" :y="contextMenuOption.y" />
   </div>
 </template>
 
@@ -82,14 +68,17 @@ async function handleContextMenu(e, tagItem) {
     background: transparent !important;
     border-radius: 4px !important;
     margin-right: 4px;
+
     &:hover {
       border: 1px solid rgb(var(--primary-color)) !important;
     }
   }
+
   .n-tabs-tab--active {
     border: 1px solid rgb(var(--primary-color)) !important;
     background-color: rgba(var(--primary-color), 0.1) !important;
   }
+
   .n-tabs-pad,
   .n-tabs-tab-pad,
   .n-tabs-scroll-padding {

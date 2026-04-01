@@ -56,20 +56,24 @@ export const useTabStore = defineStore('tab', {
       }, 100)
     },
     async removeTab(path) {
+      if (path === '/')
+        return
       this.setTabs(this.tabs.filter(tab => tab.path !== path))
       if (path === this.activeTab) {
         useRouterStore().router?.push(this.tabs[this.tabs.length - 1].path)
       }
     },
     removeOther(curPath = this.activeTab) {
-      this.setTabs(this.tabs.filter(tab => tab.path === curPath))
+      // 始终保留首页
+      this.setTabs(this.tabs.filter(tab => tab.path === curPath || tab.path === '/'))
       if (curPath !== this.activeTab) {
         useRouterStore().router?.push(this.tabs[this.tabs.length - 1].path)
       }
     },
     removeLeft(curPath) {
       const curIndex = this.tabs.findIndex(item => item.path === curPath)
-      const filterTabs = this.tabs.filter((item, index) => index >= curIndex)
+      // 始终保留首页
+      const filterTabs = this.tabs.filter((item, index) => index >= curIndex || item.path === '/')
       this.setTabs(filterTabs)
       if (!filterTabs.find(item => item.path === this.activeTab)) {
         useRouterStore().router?.push(filterTabs[filterTabs.length - 1].path)

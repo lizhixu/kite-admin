@@ -8,24 +8,12 @@
 
 <template>
   <MeModal ref="modalRef">
-    <n-form
-      ref="modalFormRef"
-      label-placement="left"
-      require-mark-placement="left"
-      :label-width="100"
-      :model="modalForm"
-    >
+    <n-form ref="modalFormRef" label-placement="left" require-mark-placement="left" :label-width="100"
+      :model="modalForm">
       <n-grid :cols="24" :x-gap="24">
         <n-form-item-gi :span="12" label="所属菜单" path="parentId">
-          <n-tree-select
-            v-model:value="modalForm.parentId"
-            :options="menuOptions"
-            :disabled="parentIdDisabled"
-            label-field="name"
-            key-field="id"
-            placeholder="根菜单"
-            clearable
-          />
+          <n-tree-select v-model:value="modalForm.parentId" :options="menuOptions" :disabled="parentIdDisabled"
+            label-field="name" key-field="id" placeholder="根菜单" clearable />
         </n-form-item-gi>
         <n-form-item-gi :span="12" path="name" :rule="required">
           <template #label>
@@ -39,22 +27,17 @@
           </template>
           <n-input v-model:value="modalForm.code" />
         </n-form-item-gi>
-        <n-form-item-gi
-          v-if="modalForm.type === 'MENU'"
-          :span="12"
-          path="path"
-          :rule="{
-            trigger: ['blur', 'change'],
-            type: 'string',
-            message: '必须是/、http、https开头',
-            validator(rule, value) {
-              if (value) {
-                return /\/|http|https/.test(value)
-              }
-              return true
-            },
-          }"
-        >
+        <n-form-item-gi v-if="modalForm.type === 'MENU'" :span="12" path="path" :rule="{
+          trigger: ['blur', 'change'],
+          type: 'string',
+          message: '必须是/、http、https开头',
+          validator(rule, value) {
+            if (value) {
+              return /\/|http|https/.test(value)
+            }
+            return true
+          },
+        }">
           <template #label>
             <QuestionLabel label="路由地址" content="父级菜单可不填" />
           </template>
@@ -62,36 +45,21 @@
         </n-form-item-gi>
         <n-form-item-gi v-if="modalForm.type === 'MENU'" :span="12" path="icon">
           <template #label>
-            <QuestionLabel
-              label="菜单图标"
-              content="如material-symbols:help，图标库地址: https://icones.js.org/collection/all"
-            />
+            <QuestionLabel label="菜单图标" content="如material-symbols:help，图标库地址: https://icones.js.org/collection/all" />
           </template>
           <n-select v-model:value="modalForm.icon" :options="iconOptions" clearable filterable />
         </n-form-item-gi>
         <n-form-item-gi v-if="modalForm.type === 'MENU'" :span="12" path="layout">
           <template #label>
-            <QuestionLabel
-              label="layout"
-              content="对应layouts文件夹下的目录名, 为空则默认为 default"
-            />
+            <QuestionLabel label="layout" content="对应layouts文件夹下的目录名, 为空则默认为 default" />
           </template>
           <n-select v-model:value="modalForm.layout" :options="layoutOptions" clearable />
         </n-form-item-gi>
         <n-form-item-gi v-if="modalForm.type === 'MENU'" :span="24" path="component">
           <template #label>
-            <QuestionLabel
-              label="组件路径"
-              content="前端组件的路径，以 /src 开头，父级菜单可不填"
-            />
+            <QuestionLabel label="组件路径" content="前端组件的路径，以 /src 开头，父级菜单可不填" />
           </template>
-          <n-select
-            v-model:value="modalForm.component"
-            :options="componentOptions"
-            clearable
-            filterable
-            tag
-          />
+          <n-select v-model:value="modalForm.component" :options="componentOptions" clearable filterable tag />
         </n-form-item-gi>
 
         <n-form-item-gi v-if="modalForm.type === 'MENU'" :span="12" path="show">
@@ -109,10 +77,7 @@
         </n-form-item-gi>
         <n-form-item-gi :span="12" path="enable">
           <template #label>
-            <QuestionLabel
-              label="状态"
-              content="如果是菜单，禁用后将不添加到路由表，无法进入此页面"
-            />
+            <QuestionLabel label="状态" content="如果是菜单，禁用后将不添加到路由表，无法进入此页面" />
           </template>
           <n-switch v-model:value="modalForm.enable">
             <template #checked>
@@ -125,10 +90,7 @@
         </n-form-item-gi>
         <n-form-item-gi v-if="modalForm.type === 'MENU'" :span="12" path="keepAlive">
           <template #label>
-            <QuestionLabel
-              label="KeepAlive"
-              content="设置keepAlive需将组件的name设置成当前菜单的code"
-            />
+            <QuestionLabel label="KeepAlive" content="设置keepAlive需将组件的name设置成当前菜单的code" />
           </template>
           <n-switch v-model:value="modalForm.keepAlive">
             <template #checked>
@@ -139,18 +101,12 @@
             </template>
           </n-switch>
         </n-form-item-gi>
-        <n-form-item-gi
-          v-if="modalForm.type === 'MENU'"
-          :span="12"
-          label="排序"
-          path="order"
-          :rule="{
-            type: 'number',
-            required: true,
-            message: '此为必填项',
-            trigger: ['blur', 'change'],
-          }"
-        >
+        <n-form-item-gi v-if="modalForm.type === 'MENU'" :span="12" label="排序" path="order" :rule="{
+          type: 'number',
+          required: true,
+          message: '此为必填项',
+          trigger: ['blur', 'change'],
+        }">
           <n-input-number v-model:value="modalForm.order" />
         </n-form-item-gi>
       </n-grid>

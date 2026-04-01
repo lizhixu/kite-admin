@@ -12,7 +12,7 @@ type PermissionController struct{}
 
 func (pc *PermissionController) GetRolePermissionsTree(c *gin.Context) {
 	roleCode := c.GetString("roleCode")
-	
+
 	// 超级管理员返回所有权限
 	if roleCode == "SUPER_ADMIN" {
 		var allPermissions []models.Permission
@@ -95,6 +95,31 @@ func (pc *PermissionController) GetButtonsByParentID(c *gin.Context) {
 		Code:      0,
 		Message:   "OK",
 		Data:      buttons,
+		OriginUrl: c.Request.URL.Path,
+	})
+}
+
+func (pc *PermissionController) ValidateMenuPath(c *gin.Context) {
+	path := c.Query("path")
+	if path == "" {
+		c.JSON(http.StatusOK, models.Response{
+			Code:      0,
+			Message:   "OK",
+			Data:      false,
+			OriginUrl: c.Request.URL.Path,
+		})
+		return
+	}
+
+	var count int64
+	config.DB.Model(&models.Permission{}).
+		Where("type = ? AND path = ?", "MENU", path).
+		Count(&count)
+
+	c.JSON(http.StatusOK, models.Response{
+		Code:      0,
+		Message:   "OK",
+		Data:      count > 0,
 		OriginUrl: c.Request.URL.Path,
 	})
 }

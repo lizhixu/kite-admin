@@ -47,10 +47,8 @@ export function createPermissionGuard(router) {
     if (routes.find(route => route.name === to.name))
       return true
 
-    // 判断是无权限还是404
+    // 判断是无权限还是资源不存在，均跳转403
     const { data: hasMenu } = await api.validateMenuPath(to.path)
-    return hasMenu
-      ? { name: '403', query: { path: to.fullPath }, state: { from: 'permission-guard' } }
-      : { name: '404', query: { path: to.fullPath } }
+    return { name: '403', query: { path: to.fullPath }, state: { from: hasMenu ? 'permission-guard' : 'not-found' } }
   })
 }
