@@ -12,7 +12,7 @@ type PermissionController struct{}
 
 func (pc *PermissionController) GetRolePermissionsTree(c *gin.Context) {
 	roleCode := c.GetString("roleCode")
-	
+
 	// 超级管理员返回所有权限
 	if roleCode == "SUPER_ADMIN" {
 		var allPermissions []models.Permission
@@ -277,6 +277,28 @@ func (pc *PermissionController) Update(c *gin.Context) {
 
 func (pc *PermissionController) Delete(c *gin.Context) {
 	id := c.Param("id")
+
+	var childCount int64
+	config.DB.Model(&models.Permission{}).Where("parent_id = ?", id).Count(&childCount)
+	if childCount > 0 {
+		c.JSON(http.StatusBadRequest, models.Response{
+			Code:      400,
+			Message:   "Please delete child permissions first",
+			OriginUrl: c.Request.URL.Path,
+		})
+		return
+	}
+
+	// Resolve many-to-many foreign key constraint before deleting the permission
+	if err := config.DB.Exec("DELETE FROM role_permissions WHERE permission_id = ?", id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, models.Response{
+			Code:      500,
+			Message:   "Failed to clear permission associations",
+			OriginUrl: c.Request.URL.Path,
+		})
+		return
+	}
+
 	if err := config.DB.Delete(&models.Permission{}, id).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, models.Response{
 			Code:      500,
