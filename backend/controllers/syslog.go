@@ -47,8 +47,8 @@ func (sl *SysLogController) GetLogs(c *gin.Context) {
 		Code:    0,
 		Message: "OK",
 		Data: gin.H{
-			"list":  logs,
-			"total": total,
+			"pageData": logs,
+			"total":    total,
 		},
 		OriginUrl: c.Request.URL.Path,
 	})

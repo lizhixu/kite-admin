@@ -25,6 +25,7 @@ func main() {
 		&models.Profile{},
 		&models.Role{},
 		&models.Permission{},
+		&models.SysLog{},
 	); err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
@@ -61,6 +62,9 @@ func initDefaultData() {
 	permissions := []models.Permission{
 		// 系统管理
 		{ID: 2, Name: "系统管理", Code: "SysMgt", Type: "MENU", Icon: ptrStr("i-fe:grid"), Show: ptrBool(true), Enable: ptrBool(true), Order: 1},
+
+		// 日志管理
+		{ID: 6, Name: "日志管理", Code: "LogMgt", Type: "MENU", Path: ptrStr("/log/list"), Icon: ptrStr("i-fe:file-text"), Component: ptrStr("/src/views/log/index.vue"), Show: ptrBool(true), Enable: ptrBool(true), Order: 2},
 
 		// 资源管理
 		{ID: 1, Name: "资源管理", Code: "Resource_Mgt", Type: "MENU", ParentID: ptrUint(2), Path: ptrStr("/pms/resource"), Icon: ptrStr("i-fe:list"), Component: ptrStr("/src/views/pms/resource/index.vue"), Show: ptrBool(true), Enable: ptrBool(true), Order: 1},

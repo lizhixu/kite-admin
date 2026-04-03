@@ -14,6 +14,7 @@ func SetupRoutes(r *gin.Engine) {
 	userCtrl := &controllers.UserController{}
 	roleCtrl := &controllers.RoleController{}
 	permCtrl := &controllers.PermissionController{}
+	syslogCtrl := &controllers.SysLogController{}
 
 	// 认证相关路由（无需认证）
 	auth := r.Group("/auth")
@@ -26,6 +27,7 @@ func SetupRoutes(r *gin.Engine) {
 	// 需要认证的路由
 	api := r.Group("")
 	api.Use(middleware.AuthMiddleware())
+	api.Use(middleware.OperationLog())
 	{
 		// 认证相关
 		api.POST("/auth/current-role/switch/:roleCode", authCtrl.SwitchRole)
@@ -55,5 +57,8 @@ func SetupRoutes(r *gin.Engine) {
 		api.POST("/permission", middleware.RequirePermission("AddResource"), permCtrl.Create)
 		api.PATCH("/permission/:id", middleware.RequirePermission("EditResource"), permCtrl.Update)
 		api.DELETE("/permission/:id", middleware.RequirePermission("DeleteResource"), permCtrl.Delete)
+
+		// 日志相关
+		api.GET("/syslog/list", syslogCtrl.GetLogs)
 	}
 }
