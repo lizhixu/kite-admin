@@ -306,6 +306,8 @@ async function handleEnable(row) {
 }
 
 function handleOpenRolesSet(row) {
+  // 每次打开分配角色弹窗时重新获取角色列表
+  api.getAllRoles().then(({ data = [] }) => (roles.value = data))
   const roleIds = row.roles.map(item => item.id)
   handleOpen({
     action: 'setRole',
