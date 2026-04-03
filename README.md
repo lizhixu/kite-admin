@@ -70,8 +70,16 @@ DB_NAME=kite_admin
 ```
 
 3. 运行服务
+如果不需要热重载，可以直接运行：
 ```bash
 go run main.go
+```
+
+**强烈推荐使用 `air` 进行热重载开发**：
+先安装 air 工具：`go install github.com/air-verse/air@latest`
+然后在 `backend` 目录下直接运行：
+```bash
+air
 ```
 
 后端服务将在 `http://localhost:8090` 启动
@@ -101,11 +109,13 @@ pnpm run dev
 - ✅ 用户管理
 - ✅ 角色管理
 - ✅ 权限管理（菜单权限）
+- ✅ 系统日志（详细记录请求入参、响应出参、耗时、IP 等）
 - ✅ JWT 认证
 - ✅ 角色切换
 - ✅ 个人资料
 - ✅ 响应式布局
 - ✅ 主题切换（亮色/暗色）
+- ✅ 后端支持 Air 热加载
 
 ## API 接口
 
@@ -137,6 +147,9 @@ pnpm run dev
 - `POST /permission` - 新增权限
 - `PATCH /permission/:id` - 修改权限
 - `DELETE /permission/:id` - 删除权限
+
+### 系统日志
+- `GET /syslog/list` - 获取系统操作日志列表
 
 ## 开发说明
 
