@@ -37,10 +37,19 @@ const activeKey = computed(() => route.meta?.parentKey || route.name)
 const menu = ref(null)
 const expandedKeys = ref([])
 
-watch(route, async () => {
-  await nextTick()
-  menu.value?.showOption()
-})
+watch(
+  [activeKey, () => permissionStore.menus.length],
+  async () => {
+    await nextTick()
+    if (!activeKey.value || !permissionStore.menus.length)
+      return
+    const ancestors = getAncestors(activeKey.value)
+    if (ancestors && ancestors.length)
+      expandedKeys.value = ancestors
+    menu.value?.showOption()
+  },
+  { immediate: true },
+)
 
 function handleExpandedKeysUpdate(keys) {
   expandedKeys.value = keys
