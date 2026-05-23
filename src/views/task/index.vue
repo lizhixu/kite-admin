@@ -73,133 +73,153 @@
     </MeCrud>
 
     <!-- 新增/编辑 -->
-    <MeModal ref="modalRef" width="680px">
-      <n-form
-        ref="modalFormRef"
-        label-placement="left"
-        label-align="left"
-        :label-width="100"
-        :model="modalForm"
-      >
-        <n-form-item
-          label="任务名"
-          path="name"
-          :rule="{ required: true, message: '请输入任务名', trigger: ['input', 'blur'] }"
+    <MeModal ref="modalRef" width="720px">
+      <div class="task-form-scroll">
+        <n-form
+          ref="modalFormRef"
+          label-placement="left"
+          label-align="left"
+          :label-width="90"
+          :model="modalForm"
         >
-          <n-input v-model:value="modalForm.name" placeholder="便于识别的中文名" />
-        </n-form-item>
+          <n-form-item
+            label="任务名"
+            path="name"
+            :rule="{ required: true, message: '请输入任务名', trigger: ['input', 'blur'] }"
+          >
+            <n-input v-model:value="modalForm.name" placeholder="便于识别的中文名" />
+          </n-form-item>
 
-        <n-form-item
-          label="Cron 表达式"
-          path="spec"
-          :rule="{ required: true, message: '请输入 cron 表达式', trigger: ['input', 'blur'] }"
-        >
-          <NSpace vertical :size="6" style="width: 100%">
-            <n-input v-model:value="modalForm.spec" placeholder="如 */5 * * * * 每 5 分钟" @update:value="onSpecChange" />
-            <NSpace :size="6" :wrap="true">
-              <NTag
-                v-for="p in cronPresets"
-                :key="p.spec"
-                checkable
-                size="small"
-                @click="applyPreset(p.spec)"
-              >
-                {{ p.label }}
-              </NTag>
+          <n-form-item
+            label="Cron 表达式"
+            path="spec"
+            :rule="{ required: true, message: '请输入 cron 表达式', trigger: ['input', 'blur'] }"
+          >
+            <NSpace vertical :size="6" style="width: 100%">
+              <n-input v-model:value="modalForm.spec" placeholder="如 */5 * * * * 每 5 分钟" @update:value="onSpecChange" />
+              <NSpace :size="6" :wrap="true">
+                <NTag
+                  v-for="p in cronPresets"
+                  :key="p.spec"
+                  checkable
+                  size="small"
+                  @click="applyPreset(p.spec)"
+                >
+                  {{ p.label }}
+                </NTag>
+              </NSpace>
+              <div v-if="nextRuns.length" class="text-12" style="color: var(--n-text-color-3, #888)">
+                下次执行：
+                <span v-for="(t, i) in nextRuns" :key="i" style="margin-right: 12px">
+                  {{ formatDateTime(t) }}
+                </span>
+              </div>
+              <div v-else-if="specError" class="text-12 text-error">
+                {{ specError }}
+              </div>
             </NSpace>
-            <div v-if="nextRuns.length" class="text-12" style="color: var(--n-text-color-3, #888)">
-              下次执行：
-              <span v-for="(t, i) in nextRuns" :key="i" style="margin-right: 12px">
-                {{ formatDateTime(t) }}
-              </span>
-            </div>
-            <div v-else-if="specError" class="text-12 text-error">
-              {{ specError }}
-            </div>
-          </NSpace>
-        </n-form-item>
+          </n-form-item>
 
-        <n-form-item
-          label="任务类型"
-          path="type"
-          :rule="{ required: true, message: '请选择任务类型', trigger: 'change' }"
-        >
-          <n-select v-model:value="modalForm.type" :options="typeOptions" />
-        </n-form-item>
+          <NGrid :cols="2" :x-gap="12">
+            <NGridItem>
+              <n-form-item
+                label="任务类型"
+                path="type"
+                :rule="{ required: true, message: '请选择任务类型', trigger: 'change' }"
+              >
+                <n-select v-model:value="modalForm.type" :options="typeOptions" />
+              </n-form-item>
+            </NGridItem>
+            <NGridItem>
+              <n-form-item label="超时(秒)" path="timeout">
+                <n-input-number v-model:value="modalForm.timeout" :min="1" :max="3600" style="width: 100%" />
+              </n-form-item>
+            </NGridItem>
+          </NGrid>
 
-        <n-form-item
-          v-if="modalForm.type === 'HTTP'"
-          label="URL"
-          path="command"
-          :rule="{ required: true, message: '请输入请求地址', trigger: ['input', 'blur'] }"
-        >
-          <n-input v-model:value="modalForm.command" placeholder="https://example.com/api" />
-        </n-form-item>
+          <template v-if="modalForm.type === 'HTTP'">
+            <n-form-item
+              label="URL"
+              path="command"
+              :rule="{ required: true, message: '请输入请求地址', trigger: ['input', 'blur'] }"
+            >
+              <n-input v-model:value="modalForm.command" placeholder="https://example.com/api" />
+            </n-form-item>
 
-        <n-form-item v-if="modalForm.type === 'HTTP'" label="请求方法" path="httpMethod">
-          <n-select v-model:value="modalForm.httpMethod" :options="httpMethodOptions" />
-        </n-form-item>
+            <NGrid :cols="2" :x-gap="12">
+              <NGridItem>
+                <n-form-item label="请求方法" path="httpMethod">
+                  <n-select v-model:value="modalForm.httpMethod" :options="httpMethodOptions" />
+                </n-form-item>
+              </NGridItem>
+              <NGridItem>
+                <n-form-item label="状态" path="enabled">
+                  <NSwitch v-model:value="modalForm.enabled">
+                    <template #checked>启用</template>
+                    <template #unchecked>停用</template>
+                  </NSwitch>
+                </n-form-item>
+              </NGridItem>
+            </NGrid>
 
-        <n-form-item v-if="modalForm.type === 'HTTP'" label="请求头" path="httpHeaders">
-          <n-input
-            v-model:value="modalForm.httpHeaders"
-            type="textarea"
-            placeholder='JSON 字符串，例如 {"Authorization":"Bearer xxx"}'
-            :autosize="{ minRows: 2, maxRows: 4 }"
-          />
-        </n-form-item>
+            <n-form-item label="请求头" path="httpHeaders">
+              <n-input
+                v-model:value="modalForm.httpHeaders"
+                type="textarea"
+                placeholder='JSON 字符串，例如 {"Authorization":"Bearer xxx"}'
+                :autosize="{ minRows: 2, maxRows: 4 }"
+              />
+            </n-form-item>
 
-        <n-form-item v-if="modalForm.type === 'HTTP'" label="请求体" path="httpBody">
-          <n-input
-            v-model:value="modalForm.httpBody"
-            type="textarea"
-            placeholder="POST/PUT 时的请求体"
-            :autosize="{ minRows: 2, maxRows: 4 }"
-          />
-        </n-form-item>
+            <n-form-item label="请求体" path="httpBody">
+              <n-input
+                v-model:value="modalForm.httpBody"
+                type="textarea"
+                placeholder="POST/PUT 时的请求体"
+                :autosize="{ minRows: 2, maxRows: 4 }"
+              />
+            </n-form-item>
+          </template>
 
-        <n-form-item
-          v-if="modalForm.type === 'SHELL'"
-          label="Shell 命令"
-          path="command"
-          :rule="{ required: true, message: '请输入命令', trigger: ['input', 'blur'] }"
-        >
-          <n-input
-            v-model:value="modalForm.command"
-            type="textarea"
-            placeholder="例如 ls /tmp"
-            :autosize="{ minRows: 2, maxRows: 4 }"
-          />
-        </n-form-item>
+          <n-form-item
+            v-if="modalForm.type === 'SHELL'"
+            label="Shell 命令"
+            path="command"
+            :rule="{ required: true, message: '请输入命令', trigger: ['input', 'blur'] }"
+          >
+            <n-input
+              v-model:value="modalForm.command"
+              type="textarea"
+              placeholder="例如 ls /tmp"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+            />
+          </n-form-item>
 
-        <n-form-item
-          v-if="modalForm.type === 'FUNC'"
-          label="内置函数"
-          path="command"
-          :rule="{ required: true, message: '请选择内置函数', trigger: 'change' }"
-        >
-          <n-select
-            v-model:value="modalForm.command"
-            :options="funcOptions"
-            placeholder="选择已注册的内置函数"
-          />
-        </n-form-item>
+          <n-form-item
+            v-if="modalForm.type === 'FUNC'"
+            label="内置函数"
+            path="command"
+            :rule="{ required: true, message: '请选择内置函数', trigger: 'change' }"
+          >
+            <n-select
+              v-model:value="modalForm.command"
+              :options="funcOptions"
+              placeholder="选择已注册的内置函数"
+            />
+          </n-form-item>
 
-        <n-form-item label="超时(秒)" path="timeout">
-          <n-input-number v-model:value="modalForm.timeout" :min="1" :max="3600" />
-        </n-form-item>
+          <n-form-item label="描述" path="description">
+            <n-input v-model:value="modalForm.description" type="textarea" :autosize="{ minRows: 1, maxRows: 3 }" />
+          </n-form-item>
 
-        <n-form-item label="描述" path="description">
-          <n-input v-model:value="modalForm.description" type="textarea" :autosize="{ minRows: 1, maxRows: 3 }" />
-        </n-form-item>
-
-        <n-form-item label="状态" path="enabled">
-          <NSwitch v-model:value="modalForm.enabled">
-            <template #checked>启用</template>
-            <template #unchecked>停用</template>
-          </NSwitch>
-        </n-form-item>
-      </n-form>
+          <n-form-item v-if="modalForm.type !== 'HTTP'" label="状态" path="enabled">
+            <NSwitch v-model:value="modalForm.enabled">
+              <template #checked>启用</template>
+              <template #unchecked>停用</template>
+            </NSwitch>
+          </n-form-item>
+        </n-form>
+      </div>
     </MeModal>
 
     <!-- 任务详情 -->
@@ -310,7 +330,7 @@
     </NDrawer>
 
     <!-- 输出详情 -->
-    <NModal v-model:show="outputVisible" preset="card" title="输出详情" style="width: 880px">
+    <NModal v-model:show="outputVisible" preset="card" title="输出详情" style="width: 880px; max-width: 95vw">
       <NDescriptions label-placement="left" :column="2" bordered size="small" class="mb-12">
         <NDescriptionsItem label="任务名">{{ currentLog.taskName }}</NDescriptionsItem>
         <NDescriptionsItem label="触发方式">
@@ -386,12 +406,16 @@
           <NEmpty v-else description="无过程记录" />
         </NTabPane>
         <NTabPane name="output" tab="输出">
-          <JsonViewer v-if="currentLog.output" :raw="currentLog.output" />
-          <NEmpty v-else description="无输出" />
+          <div class="tab-scroll">
+            <JsonViewer v-if="currentLog.output" :raw="currentLog.output" />
+            <NEmpty v-else description="无输出" />
+          </div>
         </NTabPane>
         <NTabPane name="error" tab="错误" :disabled="!currentLog.error">
-          <JsonViewer v-if="currentLog.error" :raw="currentLog.error" />
-          <NEmpty v-else description="无错误" />
+          <div class="tab-scroll">
+            <JsonViewer v-if="currentLog.error" :raw="currentLog.error" />
+            <NEmpty v-else description="无错误" />
+          </div>
         </NTabPane>
       </NTabs>
     </NModal>
@@ -943,6 +967,20 @@ const logColumns = [
 .text-12 { font-size: 12px; }
 .text-muted { color: #9ca3af; }
 
+.task-form-scroll {
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-right: -6px;
+}
+.task-form-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.task-form-scroll::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
+}
+
 .step-toolbar {
   display: flex;
   align-items: center;
@@ -956,7 +994,8 @@ const logColumns = [
 }
 
 .step-scroll {
-  max-height: 460px;
+  max-height: min(460px, calc(100vh - 380px));
+  min-height: 220px;
   overflow-y: auto;
   padding: 4px 8px 4px 4px;
 }
@@ -965,6 +1004,20 @@ const logColumns = [
   width: 6px;
 }
 .step-scroll::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
+}
+
+.tab-scroll {
+  max-height: min(500px, calc(100vh - 340px));
+  min-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.tab-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.tab-scroll::-webkit-scrollbar-thumb {
   background: #d4d4d8;
   border-radius: 3px;
 }
