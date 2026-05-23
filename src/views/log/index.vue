@@ -56,12 +56,12 @@
           </NCard>
 
           <NCard title="详细传参" size="small" :bordered="true">
-            <NCode v-if="currentLog.params" :code="formatJson(currentLog.params)" language="json" word-wrap />
+            <JsonViewer v-if="currentLog.params" :raw="currentLog.params" />
             <span v-else>无传参</span>
           </NCard>
 
           <NCard title="响应内容" size="small" :bordered="true">
-            <NCode v-if="currentLog.response" :code="formatJson(currentLog.response)" language="json" word-wrap />
+            <JsonViewer v-if="currentLog.response" :raw="currentLog.response" />
             <span v-else>无响应</span>
           </NCard>
         </NSpace>
@@ -71,9 +71,9 @@
 </template>
 
 <script setup>
-import { NButton, NCard, NCode, NDrawer, NDrawerContent, NSpace, NTag } from 'naive-ui'
+import { NButton, NCard, NDrawer, NDrawerContent, NSpace, NTag } from 'naive-ui'
 import { h, onMounted, ref } from 'vue'
-import { MeCrud, MeQueryItem } from '@/components'
+import { JsonViewer, MeCrud, MeQueryItem } from '@/components'
 import { formatDateTime } from '@/utils'
 import api from './api'
 
@@ -87,29 +87,6 @@ const currentLog = ref({})
 function handleViewDetails(row) {
   currentLog.value = row
   drawerVisible.value = true
-}
-
-function formatJson(str) {
-  if (!str)
-    return ''
-  try {
-    // If it is a string containing JSON or an object directly
-    if (typeof str === 'object')
-      return JSON.stringify(str, null, 2)
-    // Extract JSON part if mixed with text like "Body: {...}"
-    if (str.includes('{') && str.includes('}')) {
-      const firstBrace = str.indexOf('{')
-      const lastBrace = str.lastIndexOf('}')
-      const jsonStr = str.substring(firstBrace, lastBrace + 1)
-      const obj = JSON.parse(jsonStr)
-      // replace the json part with formatted json, keeping text before/after
-      return str.substring(0, firstBrace) + JSON.stringify(obj, null, 2) + str.substring(lastBrace + 1)
-    }
-    return JSON.stringify(JSON.parse(str), null, 2)
-  }
-  catch {
-    return str
-  }
 }
 
 onMounted(() => {

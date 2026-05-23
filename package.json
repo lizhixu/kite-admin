@@ -23,6 +23,7 @@
     "pinia-plugin-persistedstate": "^4.7.1",
     "vue": "^3.5.29",
     "vue-echarts": "^8.0.1",
+    "vue-json-pretty": "^2.6.0",
     "vue-router": "^5.0.3",
     "xlsx": "^0.18.5"
   },
@@ -52,9 +53,8 @@
     "vite-plugin-vue-devtools": "^8.0.6",
     "vue3-intro-step": "^1.0.5"
   },
-
   "volta": {
-    "node": "23.1.0",
+    "node": "22.22.3",
     "pnpm": "10.32.1"
   }
 }
