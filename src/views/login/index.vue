@@ -74,25 +74,14 @@
           :on-update:checked="(val) => (isRemember = val)"
         />
 
-        <div class="mt-20 flex items-center">
-          <n-button
-            class="h-40 flex-1 rounded-5 text-16"
-            type="primary"
-            ghost
-            @click="quickLogin()"
-          >
-            一键体验
-          </n-button>
-
-          <n-button
-            class="ml-32 h-40 flex-1 rounded-5 text-16"
-            type="primary"
-            :loading="loading"
-            @click="handleLogin()"
-          >
-            登录
-          </n-button>
-        </div>
+        <n-button
+          class="mt-20 h-40 w-full rounded-5 text-16"
+          type="primary"
+          :loading="loading"
+          @click="handleLogin()"
+        >
+          登录
+        </n-button>
       </div>
     </div>
 
@@ -128,24 +117,18 @@ if (localLoginInfo) {
 }
 initCaptcha()
 
-function quickLogin() {
-  loginInfo.value.username = 'admin'
-  loginInfo.value.password = '123456'
-  handleLogin(true)
-}
-
 const isRemember = useStorage('isRemember', true)
 const loading = ref(false)
-async function handleLogin(isQuick) {
+async function handleLogin() {
   const { username, password, captcha } = loginInfo.value
   if (!username || !password)
     return $message.warning('请输入用户名和密码')
-  if (!isQuick && !captcha)
+  if (!captcha)
     return $message.warning('请输入验证码')
   try {
     loading.value = true
     $message.loading('正在验证，请稍后...', { key: 'login' })
-    const { data } = await api.login({ username, password: password.toString(), captcha, isQuick })
+    const { data } = await api.login({ username, password: password.toString(), captcha })
     if (isRemember.value) {
       lStorage.set('loginInfo', { username, password })
     }
