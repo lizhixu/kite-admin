@@ -10,7 +10,13 @@
   <AppPage show-footer>
     <n-card>
       <n-space align="center">
-        <n-avatar round :size="100" :src="userStore.avatar" />
+        <n-avatar
+          round
+          :size="100"
+          :src="userStore.avatar"
+          class="cursor-pointer transition hover:op-80"
+          @click="handleChangeAvatar"
+        />
         <div class="ml-20">
           <div class="flex items-center text-16">
             <span>用户名:</span>
@@ -21,11 +27,12 @@
             </n-button>
           </div>
           <div class="mt-16 flex items-center">
-            <n-button type="primary" ghost @click="avatarModalRef.open()">
+            <n-button type="primary" ghost :loading="avatarSaving" @click="handleChangeAvatar">
+              <i class="i-fe:image mr-4" />
               更改头像
             </n-button>
             <span class="ml-12 opacity-60">
-              修改头像只支持在线链接，不提供上传图片功能，如有需要可自行对接！
+              从媒体库选择或直接上传新图片
             </span>
           </div>
         </div>
@@ -60,10 +67,6 @@
         </n-descriptions-item>
       </n-descriptions>
     </n-card>
-
-    <MeModal ref="avatarModalRef" width="420px" title="更改头像" @ok="handleAvatarSave()">
-      <n-input v-model:value="newAvatar" />
-    </MeModal>
 
     <MeModal ref="pwdModalRef" title="修改密码" width="420px" @ok="handlePwdSave()">
       <n-form
@@ -128,16 +131,25 @@ async function handlePwdSave() {
   refreshUserInfo()
 }
 
-const newAvatar = ref(userStore.avatar)
-const [avatarModalRef] = useModal()
-async function handleAvatarSave() {
-  if (!newAvatar.value) {
-    $message.error('请输入头像地址')
-    return false
+const avatarSaving = ref(false)
+async function handleChangeAvatar() {
+  const items = await window.$picker.open({
+    accept: 'image/',
+    multiple: false,
+    title: '选择头像',
+  })
+  const media = items?.[0]
+  if (!media?.url)
+    return
+  avatarSaving.value = true
+  try {
+    await api.updateProfile({ id: userStore.userId, avatar: media.url })
+    $message.success('头像修改成功')
+    refreshUserInfo()
   }
-  await api.updateProfile({ id: userStore.userId, avatar: newAvatar.value })
-  $message.success('头像修改成功')
-  refreshUserInfo()
+  finally {
+    avatarSaving.value = false
+  }
 }
 
 const genders = [

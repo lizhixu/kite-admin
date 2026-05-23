@@ -25,12 +25,15 @@
 
       <LayoutSetting v-if="layoutSettingVisible" class="fixed right-12 top-1/2 z-999" />
     </router-view>
+
+    <GlobalMediaPicker />
   </n-config-provider>
 </template>
 
 <script setup>
 import { darkTheme, dateZhCN, zhCN } from 'naive-ui'
 import { LayoutSetting } from '@/components'
+import { GlobalMediaPicker } from '@/components/picker'
 import { useAppStore, useTabStore } from '@/store'
 import { layoutSettingVisible } from './settings'
 
