@@ -67,6 +67,12 @@ export default defineConfig(({ mode }) => {
             })
           },
         },
+        // 本地存储的静态资源由后端 Gin 直出,开发时透传过去
+        '/uploads': {
+          target: VITE_PROXY_TARGET,
+          changeOrigin: true,
+          secure: false,
+        },
       },
     },
     optimizeDeps: {
