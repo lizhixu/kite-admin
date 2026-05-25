@@ -25,60 +25,67 @@
           <i class="i-fe:image mb-8 text-32" />
           <div>暂无文件</div>
         </div>
-        <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-12">
-          <div
-            v-for="item in items"
-            :key="item.id"
-            class="group relative cursor-pointer border border-light_border rounded-6 bg-white p-8 transition dark:border-dark_border hover:border-primary dark:bg-#1f1f1f"
-            :class="{ 'border-primary! ring-2 ring-primary/30': checkedSet.has(item.id) }"
-            @click="onItemClick(item, $event)"
-          >
-            <div class="absolute left-6 top-6 z-1" @click.stop>
-              <NCheckbox
-                :checked="checkedSet.has(item.id)"
-                @update:checked="toggle(item.id)"
-              />
-            </div>
-            <div class="mb-6 aspect-square flex items-center justify-center overflow-hidden rounded-4 bg-#f5f5f5 dark:bg-#2a2a2a">
-              <NImage
-                v-if="isImage(item)"
-                :src="item.url"
-                object-fit="cover"
-                preview-disabled
-                class="h-full w-full"
-                :img-props="{ style: 'width:100%;height:100%;object-fit:cover' }"
-              />
-              <i v-else :class="iconForMime(item.mimeType)" class="text-32 opacity-60" />
-            </div>
-            <div class="truncate text-12" :title="item.filename">
-              {{ item.filename }}
-            </div>
-            <div class="mt-2 flex items-center justify-between text-10 opacity-60">
-              <span>{{ humanSize(item.size) }}</span>
-              <span>{{ formatShortDate(item.createTime) }}</span>
-            </div>
+        <NImageGroup v-else>
+          <div class="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-12">
+            <div
+              v-for="item in items"
+              :key="item.id"
+              class="group relative cursor-pointer border border-light_border rounded-6 bg-white p-8 transition dark:border-dark_border hover:border-primary dark:bg-#1f1f1f"
+              :class="{ 'border-primary! ring-2 ring-primary/30': checkedSet.has(item.id) }"
+              @click="onItemClick(item, $event)"
+            >
+              <div class="absolute left-6 top-6 z-1" @click.stop>
+                <NCheckbox
+                  :checked="checkedSet.has(item.id)"
+                  @update:checked="toggle(item.id)"
+                />
+              </div>
+              <div class="mb-6 aspect-square flex items-center justify-center overflow-hidden rounded-4 bg-#f5f5f5 dark:bg-#2a2a2a">
+                <NImage
+                  v-if="isImage(item)"
+                  :src="item.url"
+                  object-fit="cover"
+                  class="h-full w-full"
+                  :img-props="{ style: 'width:100%;height:100%;object-fit:cover' }"
+                  @click.stop
+                />
+                <i
+                  v-else
+                  :class="iconForMime(item.mimeType)"
+                  class="cursor-pointer text-32 opacity-60 hover:opacity-100"
+                  @click.stop="openNonImagePreview(item)"
+                />
+              </div>
+              <div class="truncate text-12" :title="item.filename">
+                {{ item.filename }}
+              </div>
+              <div class="mt-2 flex items-center justify-between text-10 opacity-60">
+                <span>{{ humanSize(item.size) }}</span>
+                <span>{{ formatShortDate(item.createTime) }}</span>
+              </div>
 
-            <div class="absolute right-6 top-6 hidden gap-4 group-hover:flex" @click.stop>
-              <NButton
-                circle
-                size="tiny"
-                @click="copyUrl(item.url)"
-              >
-                <i class="i-fe:copy text-12" />
-              </NButton>
-              <NButton
-                v-if="!selectMode"
-                v-permission="'DeleteMedia'"
-                circle
-                size="tiny"
-                type="error"
-                @click="onDelete(item)"
-              >
-                <i class="i-fe:trash-2 text-12" />
-              </NButton>
+              <div class="absolute right-6 top-6 hidden gap-4 group-hover:flex" @click.stop>
+                <NButton
+                  circle
+                  size="tiny"
+                  @click="copyUrl(item.url)"
+                >
+                  <i class="i-fe:copy text-12" />
+                </NButton>
+                <NButton
+                  v-if="!selectMode"
+                  v-permission="'DeleteMedia'"
+                  circle
+                  size="tiny"
+                  type="error"
+                  @click="onDelete(item)"
+                >
+                  <i class="i-fe:trash-2 text-12" />
+                </NButton>
+              </div>
             </div>
           </div>
-        </div>
+        </NImageGroup>
       </NSpin>
 
       <div v-if="total > pageSize" class="mt-16 flex justify-center">
@@ -97,7 +104,7 @@
 </template>
 
 <script setup>
-import { NButton, NCheckbox, NImage, NPagination, NScrollbar, NSpin } from 'naive-ui'
+import { NButton, NCheckbox, NImage, NImageGroup, NPagination, NScrollbar, NSpin } from 'naive-ui'
 import { formatDate } from '@/utils'
 import { humanSize, iconForMime } from '../../utils'
 import api from '../api'
@@ -226,6 +233,10 @@ async function copyUrl(url) {
   catch {
     window.$message.error('复制失败')
   }
+}
+
+function openNonImagePreview(item) {
+  window.open(item.url, '_blank')
 }
 
 function onDelete(item) {
