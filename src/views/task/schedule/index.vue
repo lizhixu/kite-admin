@@ -452,7 +452,7 @@ import { withPermission } from '@/directives'
 import { formatDateTime } from '@/utils'
 import api from './api'
 
-defineOptions({ name: 'TaskMgt' })
+defineOptions({ name: 'ScheduleTask' })
 
 const $table = ref(null)
 const queryItems = ref({})
