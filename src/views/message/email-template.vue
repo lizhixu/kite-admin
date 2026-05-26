@@ -2,7 +2,7 @@
   <CommonPage>
     <template #action>
       <NSpace v-if="selected">
-        <NButton type="primary" :loading="saving" @click="handleSave">
+        <NButton v-permission="'SaveEmailTemplate'" type="primary" :loading="saving" @click="handleSave">
           <i class="i-material-symbols:save-outline mr-4" />保存
         </NButton>
         <NButton @click="showPreview = true">

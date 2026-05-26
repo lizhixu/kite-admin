@@ -23,30 +23,28 @@
 <script setup>
 import api from '@/api'
 import { RoleSelect } from '@/layouts/components'
-import { useAuthStore, usePermissionStore, useUserStore } from '@/store'
+import { useAuthStore, useUserStore } from '@/store'
 
 const router = useRouter()
 const userStore = useUserStore()
 const authStore = useAuthStore()
-const permissionStore = usePermissionStore()
 
 const options = reactive([
   {
     label: '个人资料',
     key: 'profile',
-    icon: () => h('i', { class: 'i-material-symbols:person-outline text-14' }),
-    show: computed(() => permissionStore.accessRoutes?.some(item => item.path === '/profile')),
+    icon: () => h('i', { class: 'i-fe:user?mask text-14' }),
   },
   {
     label: '切换角色',
     key: 'toggleRole',
-    icon: () => h('i', { class: 'i-basil:exchange-solid text-14' }),
+    icon: () => h('i', { class: 'i-fe:repeat?mask text-14' }),
     show: computed(() => userStore.roles.length > 1),
   },
   {
     label: '退出登录',
     key: 'logout',
-    icon: () => h('i', { class: 'i-mdi:exit-to-app text-14' }),
+    icon: () => h('i', { class: 'i-fe:log-out?mask text-14' }),
   },
 ])
 
@@ -59,7 +57,7 @@ function handleSelect(key) {
     case 'toggleRole':
       roleSelectRef.value?.open({
         onOk() {
-          location.reload()
+          window.location.href = '/'
         },
       })
       break

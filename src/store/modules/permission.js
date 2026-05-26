@@ -19,11 +19,21 @@ export const usePermissionStore = defineStore('permission', {
   actions: {
     setPermissions(permissions) {
       this.permissions = permissions
-      this.menus = this.permissions
-        .filter(item => item.type === 'MENU')
-        .map(item => this.getMenuItem(item))
-        .filter(item => !!item)
-        .sort((a, b) => a.order - b.order)
+      const homeMenu = {
+        label: '概览页',
+        key: 'Home',
+        path: '/',
+        icon: () => h('i', { class: 'i-fe:home?mask text-16' }),
+        order: -1,
+      }
+      this.menus = [
+        homeMenu,
+        ...this.permissions
+          .filter(item => item.type === 'MENU')
+          .map(item => this.getMenuItem(item))
+          .filter(item => !!item)
+          .sort((a, b) => a.order - b.order),
+      ]
     },
     getMenuItem(item, parent) {
       const route = this.generateRoute(item, item.show ? null : parent?.key)

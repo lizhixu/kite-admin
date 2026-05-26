@@ -4,8 +4,9 @@ import api from '@/views/message/api'
 export const useNotificationStore = defineStore('notification', {
   state: () => ({
     unreadCount: 0,
-    messages: [],
     abortCtrl: null,
+    showInbox: false,
+    detailMessage: null,
   }),
 
   actions: {
@@ -14,22 +15,14 @@ export const useNotificationStore = defineStore('notification', {
       this.unreadCount = data?.count ?? 0
     },
 
-    async fetchRecentMessages() {
-      const { data } = await api.getMyMessages({ pageNo: 1, pageSize: 5 })
-      this.messages = data?.pageData ?? []
-    },
-
     async markAsRead(id) {
       await api.markRead(id)
       if (this.unreadCount > 0) this.unreadCount--
-      const msg = this.messages.find(m => m.id === id)
-      if (msg) msg.isRead = true
     },
 
     async markAllAsRead() {
       await api.markAllRead()
       this.unreadCount = 0
-      this.messages.forEach(m => { m.isRead = true })
     },
 
     connectSSE() {

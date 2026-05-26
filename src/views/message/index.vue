@@ -56,8 +56,18 @@
         <n-form-item label="目标" path="targetType">
           <n-radio-group v-model:value="modalForm.targetType">
             <n-radio value="ALL">全员广播</n-radio>
+            <n-radio value="ROLE">按角色</n-radio>
             <n-radio value="USER">指定用户</n-radio>
           </n-radio-group>
+        </n-form-item>
+        <n-form-item v-if="modalForm.targetType === 'ROLE'" label="选择角色" path="roleIds">
+          <n-select
+            v-model:value="modalForm.roleIds"
+            multiple
+            filterable
+            :options="roleOptions"
+            placeholder="选择角色分组"
+          />
         </n-form-item>
         <n-form-item v-if="modalForm.targetType === 'USER'" label="选择用户" path="userIds">
           <n-select
@@ -94,28 +104,9 @@
     <n-drawer v-model:show="detailVisible" width="640">
       <n-drawer-content>
         <template #header>
-          <div class="drawer-header">
-            <span class="drawer-title">{{ detailRow?.title || '消息详情' }}</span>
-          </div>
+          <span class="text-16 font-bold">{{ detailRow?.title || '消息详情' }}</span>
         </template>
-        <n-space vertical :size="16">
-          <n-descriptions :column="2" label-placement="left" bordered size="small">
-            <n-descriptions-item label="类型">
-              <n-tag :type="typeTagType(detailRow?.type)" size="small" :bordered="false">
-                {{ typeLabel(detailRow?.type) }}
-              </n-tag>
-            </n-descriptions-item>
-            <n-descriptions-item label="目标">
-              <n-tag :type="detailRow?.targetType === 'ALL' ? 'default' : 'info'" size="small" :bordered="false">
-                {{ detailRow?.targetType === 'ALL' ? '全员广播' : '指定用户' }}
-              </n-tag>
-            </n-descriptions-item>
-            <n-descriptions-item label="发送人">{{ detailRow?.senderName }}</n-descriptions-item>
-            <n-descriptions-item label="发送时间">{{ formatTime(detailRow?.createTime) }}</n-descriptions-item>
-          </n-descriptions>
-          <n-divider style="margin:0" />
-          <div class="message-content" v-html="renderedContent" />
-        </n-space>
+        <MessageDetail :message="detailRow" show-target />
       </n-drawer-content>
     </n-drawer>
   </CommonPage>
@@ -124,9 +115,6 @@
 <script setup>
 import {
   NButton,
-  NDescriptions,
-  NDescriptionsItem,
-  NDivider,
   NDrawer,
   NDrawerContent,
   NRadio,
@@ -137,7 +125,7 @@ import {
   NTag,
 } from 'naive-ui'
 import 'highlight.js/styles/github.css'
-import { MeCrud, MeModal, MeQueryItem } from '@/components'
+import { MeCrud, MeModal, MeQueryItem, MessageDetail } from '@/components'
 import { useCrud } from '@/composables'
 import { withPermission } from '@/directives'
 import { renderMarkdown } from '@/utils/markdown'
@@ -160,6 +148,16 @@ const formRules = {
   title: [{ required: true, message: '请输入消息标题', trigger: 'blur' }],
   content: [{ required: true, message: '请输入消息内容', trigger: 'blur' }],
 }
+
+// ====== 角色选择 ======
+const roleOptions = ref([])
+async function fetchRoles() {
+  try {
+    const { data } = await userApi.getAllRoles()
+    roleOptions.value = (data || []).map(r => ({ label: r.name, value: r.id }))
+  } catch { /* ignore */ }
+}
+fetchRoles()
 
 // ====== 用户选择 ======
 const userLoading = ref(false)
@@ -199,6 +197,7 @@ const {
     type: 'SYSTEM',
     targetType: 'ALL',
     userIds: [],
+    roleIds: [],
   },
   doCreate: api.create,
   doDelete: api.delete,
@@ -260,8 +259,6 @@ function showDetail(row) {
   detailVisible.value = true
 }
 
-const renderedContent = computed(() => renderMarkdown(detailRow.value?.content || ''))
-
 // ====== 表格列 ======
 const columns = [
   { type: 'selection', width: 40 },
@@ -288,9 +285,9 @@ const columns = [
     key: 'targetType',
     width: 100,
     render(row) {
-      const label = row.targetType === 'ALL' ? '全员' : '指定用户'
-      const type = row.targetType === 'ALL' ? 'default' : 'info'
-      return h(NTag, { type, bordered: false, size: 'small' }, { default: () => label })
+      const map = { ALL: { label: '全员', type: 'default' }, ROLE: { label: '按角色', type: 'warning' }, USER: { label: '指定用户', type: 'info' } }
+      const cfg = map[row.targetType] || { label: row.targetType, type: 'default' }
+      return h(NTag, { type: cfg.type, bordered: false, size: 'small' }, { default: () => cfg.label })
     },
   },
   { title: '发送人', key: 'senderName', width: 100 },
@@ -400,52 +397,8 @@ function formatTime(time) {
 .modal-preview :deep(table) { border-collapse: collapse; width: 100%; margin: 0.6em 0; }
 .modal-preview :deep(th),
 .modal-preview :deep(td) { border: 1px solid #e0e0e0; padding: 6px 10px; text-align: left; }
-.modal-preview :deep(th) { background: #f6f8fa; font-weight: 600; }
-
-.drawer-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.drawer-title {
-  font-size: 16px;
+.modal-preview :deep(th) {
+  background: #f6f8fa;
   font-weight: 600;
 }
-.message-content :deep(h1),
-.message-content :deep(h2),
-.message-content :deep(h3),
-.message-content :deep(h4) {
-  margin: 1em 0 0.5em;
-  font-weight: 600;
-  line-height: 1.4;
-}
-.message-content :deep(h1) { font-size: 1.5em; }
-.message-content :deep(h2) { font-size: 1.3em; }
-.message-content :deep(h3) { font-size: 1.15em; }
-.message-content :deep(p) { margin: 0.5em 0; line-height: 1.8; }
-.message-content :deep(ul),
-.message-content :deep(ol) { padding-left: 1.5em; margin: 0.5em 0; }
-.message-content :deep(li) { margin: 0.25em 0; line-height: 1.6; }
-.message-content :deep(blockquote) {
-  margin: 0.8em 0; padding: 0.5em 1em;
-  border-left: 4px solid #18a058;
-  background: #f8fdf9; color: #555;
-}
-.message-content :deep(code) {
-  background: #f5f5f5; padding: 2px 6px; border-radius: 3px;
-  font-size: 0.9em; font-family: 'Fira Code', 'Consolas', monospace;
-}
-.message-content :deep(pre) {
-  background: #f6f8fa; border-radius: 6px; padding: 16px;
-  overflow-x: auto; margin: 0.8em 0;
-}
-.message-content :deep(pre code) { background: none; padding: 0; font-size: 0.85em; line-height: 1.6; }
-.message-content :deep(table) { border-collapse: collapse; width: 100%; margin: 0.8em 0; }
-.message-content :deep(th),
-.message-content :deep(td) { border: 1px solid #e0e0e0; padding: 8px 12px; text-align: left; }
-.message-content :deep(th) { background: #f6f8fa; font-weight: 600; }
-.message-content :deep(hr) { border: none; border-top: 1px solid #e0e0e0; margin: 1.2em 0; }
-.message-content :deep(img) { max-width: 100%; border-radius: 4px; }
-.message-content :deep(a) { color: #18a058; text-decoration: none; }
-.message-content :deep(a:hover) { text-decoration: underline; }
 </style>

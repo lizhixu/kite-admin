@@ -14,7 +14,16 @@ export const basicRoutes = [
     path: '/',
     component: () => import('@/views/home/index.vue'),
     meta: {
-      title: '首页',
+      title: '概览页',
+    },
+  },
+
+  {
+    name: 'UserProfile',
+    path: '/profile',
+    component: () => import('@/views/profile/index.vue'),
+    meta: {
+      title: '个人资料',
     },
   },
 

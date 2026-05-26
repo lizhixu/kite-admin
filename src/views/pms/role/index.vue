@@ -74,8 +74,7 @@
             :data="permissionTree"
             :checked-keys="modalForm.permissionIds"
             :on-update:checked-keys="(keys) => (modalForm.permissionIds = keys)"
-
-            checkable check-on-click default-expand-all
+            cascade checkable check-on-click default-expand-all
             class="cus-scroll max-h-200 w-full"
           />
         </n-form-item>

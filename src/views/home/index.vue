@@ -1,286 +1,407 @@
-<!--------------------------------
- - @Author: Ronnie Zhang
- - @LastEditor: Ronnie Zhang
- - @LastEditTime: 2023/12/05 21:28:22
- - @Email: zclzone@outlook.com
- - Copyright © 2023 Ronnie Zhang(大脸怪) | https://isme.top
- --------------------------------->
-
 <template>
   <AppPage show-footer>
-    <div class="flex">
-      <n-card class="min-w-200 w-30%">
-        <div class="flex items-center">
-          <n-avatar round :size="60" :src="userStore.avatar" class="flex-shrink-0" />
-          <div class="ml-20 flex-col">
-            <span class="text-20 opacity-80">
-              Hello, {{ userStore.nickName ?? userStore.username }}
-            </span>
-            <span class="mt-4 opacity-50">当前角色：{{ userStore.currentRole?.name }}</span>
+    <!-- Hero Banner -->
+    <n-card class="hero-card">
+      <div class="hero-inner">
+        <div class="hero-text">
+          <n-text depth="3" style="font-size: 13px">
+            {{ todayStr }} · {{ greeting }}
+          </n-text>
+          <div class="hero-title">
+            <n-avatar round :size="44" :src="userStore.avatar" />
+            <span>{{ userStore.nickName ?? userStore.username }}，欢迎回来</span>
+          </div>
+
+          <div class="hero-meta">
+            <div class="meta-item">
+              <i class="i-fe:user-check meta-icon" />
+              <div>
+                <div class="meta-label">当前角色</div>
+                <div class="meta-value">{{ userStore.currentRole?.name ?? '未分配' }}</div>
+              </div>
+            </div>
+            <n-divider vertical style="height: 36px" />
+            <div class="meta-item">
+              <i class="i-fe:clock meta-icon" />
+              <div>
+                <div class="meta-label">上次登录</div>
+                <div class="meta-value">
+                  {{ lastLogin ? formatTime(lastLogin.createTime) : '首次登录' }}
+                  <n-text v-if="lastLogin?.ip" depth="3" style="font-size: 12px; margin-left: 6px">
+                    {{ lastLogin.ip }}
+                  </n-text>
+                </div>
+              </div>
+            </div>
+            <n-divider vertical style="height: 36px" />
+            <div class="meta-item">
+              <i class="i-fe:log-in meta-icon" />
+              <div>
+                <div class="meta-label">登录次数</div>
+                <div class="meta-value">{{ loginCount }} 次</div>
+              </div>
+            </div>
           </div>
         </div>
-
-        <p class="mt-28 text-14 opacity-60">
-          一个人几乎可以在任何他怀有无限热忱的事情上成功。
-        </p>
-        <p class="mt-12 text-right text-12 opacity-40">
-          —— 查尔斯·史考伯
-        </p>
-      </n-card>
-      <n-card class="ml-12 w-70%" title="✨ 欢迎使用 Vue Naive Admin 2.0">
-        <template #header-extra>
-          <a
-            class="text-highlight text-14 text-primary hover:underline hover:opacity-80"
-            href="https://isme.top"
-            target="_blank"
-          >
-            isme.top
-          </a>
-        </template>
-
-        <p class="opacity-60">
-          这是一款极简风格的后台管理模板，包含前后端解决方案，前端使用 Vite + Vue3 + Pinia +
-          Unocss，后端使用 Nestjs + TypeOrm +
-          MySql，简单易用，赏心悦目，历经十几次重构和细节打磨，诚意满满！！
-        </p>
-        <footer class="mt-12 flex items-center justify-end">
-          <n-button
-            type="primary"
-            ghost
-            tag="a"
-            href="https://isme.top"
-            target="__blank"
-          >
-            开发文档
-          </n-button>
-          <n-button
-            type="primary"
-            class="ml-12"
-            tag="a"
-            href="https://github.com/zclzone/vue-naive-admin/tree/2.x"
-            target="__blank"
-          >
-            代码仓库
-          </n-button>
-        </footer>
-      </n-card>
-    </div>
-    <div class="mt-12 flex">
-      <n-card class="w-50%" title="💯 特性" segmented>
-        <template #header-extra>
-          <span class="text-highlight opacity-90">👏 历经十几次重构和细节打磨</span>
-        </template>
-
-        <ul class="opacity-90">
-          <li class="py-4">
-            🆒 使用
-            <b>Vue3</b>
-            主流技术栈:
-            <span class="text-highlight">Vite + Vue3 + Pinia</span>
-          </li>
-          <li class="py-4">
-            🍇 使用
-            <b>原子CSS</b>
-            框架:
-            <span class="text-highlight">Unocss</span>
-            ，优雅、轻量、易用
-          </li>
-          <li class="py-4">
-            🤹 使用主流的
-            <span class="text-highlight">iconify + unocss</span>
-            图标方案，支持自定义图标，支持动态渲染
-          </li>
-          <li class="py-4">
-            🎨 使用 Naive UI，
-            <span class="text-highlight">极致简洁的代码风格和清爽的页面设计</span>
-            ，审美在线，主题轻松定制
-          </li>
-          <li class="py-4">
-            👏 先进且易于理解的文件结构设计，多个模块之间
-            <b>零耦合</b>
-            ，单个业务模块删除不影响其他模块
-          </li>
-          <li class="py-4">
-            🚀
-            <span class="text-highlight">扁平化路由</span>
-            设计，每一个组件都可以是一个页面，告别多级路由 KeepAlive 难实现问题
-          </li>
-
-          <li class="py-4">
-            🍒
-            <span class="text-highlight">基于权限动态生成路由</span>
-            ，无需额外定义路由，
-            <span class="text-highlight">403和404可区分</span>
-            ，而不是无权限也跳404
-          </li>
-          <li class="py-4">
-            🔐 基于Redis集成
-            <span class="text-highlight">无感刷新</span>
-            ，用户登录态可控，安全与体验缺一不可
-          </li>
-          <li class="py-4">
-            ✨ 基于 Naive UI 封装
-            <span class="text-highlight">message</span>
-            全局工具方法，支持批量提醒，支持跨页面共享实例
-          </li>
-          <li class="py-4">
-            ⚡️ 基于 Naive UI 封装常用的业务组件，包含
-            <span class="text-highlight">Page</span>
-            组件、
-            <span class="text-highlight">CRUD</span>
-            表格组件及
-            <span class="text-highlight">Modal</span>
-            组件，减少大量重复性工作
-          </li>
-        </ul>
-
-        <n-divider class="mb-0! mt-12!">
-          <p class="text-14 opacity-60">
-            👉点击
-            <b class="mx-2 transition hover:text-primary">
-              <a href="https://isme.top" target="_blank">更多</a>
-            </b>
-            查看更多实用功能，持续开发中...
-          </p>
-        </n-divider>
-      </n-card>
-
-      <n-card class="ml-12 w-50%" title="🛠️ 技术栈" segmented>
-        <VChart :option="skillOption" autoresize />
-      </n-card>
-    </div>
-
-    <n-card class="mt-12" title="⚡️ 趋势" segmented>
-      <div class="h-400">
-        <VChart :option="trendOption" autoresize />
+        <img :src="welcomeImg" class="hero-img" alt="welcome" />
       </div>
     </n-card>
+
+    <!-- Bottom row -->
+    <n-grid :cols="24" :x-gap="12" class="mt-12">
+      <n-gi :span="14">
+        <n-card title="最近消息" size="small" class="msg-card">
+          <template #header-extra>
+            <n-button text type="primary" @click="notificationStore.showInbox = true">
+              查看全部
+              <template #icon><i class="i-fe:chevron-right" /></template>
+            </n-button>
+          </template>
+          <div v-if="recentMessages.length" class="msg-list">
+            <div
+              v-for="msg in recentMessages"
+              :key="msg.id"
+              class="msg-item"
+              @click="openMessage(msg)"
+            >
+              <n-badge :dot="!msg.isRead" :type="msg.isRead ? 'default' : 'error'">
+                <span />
+              </n-badge>
+              <n-text class="msg-title" :depth="msg.isRead ? 3 : 1">{{ msg.title || '无标题' }}</n-text>
+              <n-text depth="3" class="msg-time">{{ formatTime(msg.createTime) }}</n-text>
+            </div>
+          </div>
+          <n-empty v-else description="暂无消息" class="py-32" />
+        </n-card>
+      </n-gi>
+      <n-gi :span="10">
+        <n-card title="快捷入口" size="small" style="height: 100%">
+          <template #header-extra>
+            <n-button text type="primary" @click="showConfig = true">
+              <template #icon><i class="i-fe:settings" /></template>
+            </n-button>
+          </template>
+          <n-grid :cols="3" :x-gap="8" :y-gap="8">
+            <n-gi v-for="action in quickActions" :key="action.code">
+              <div class="action-tile" @click="$router.push(action.path)">
+                <i :class="action.icon" class="text-16" />
+                <n-text depth="2" style="font-size: 13px">{{ action.name }}</n-text>
+              </div>
+            </n-gi>
+          </n-grid>
+          <n-empty v-if="!quickActions.length" description="暂未配置快捷入口" class="py-16" />
+        </n-card>
+      </n-gi>
+    </n-grid>
+
+    <!-- 配置弹窗 -->
+    <n-modal v-model:show="showConfig" preset="card" title="配置快捷入口" style="width: 480px">
+      <n-text depth="3" style="display: block; margin-bottom: 12px">
+        选择常用菜单作为快捷入口（最多 {{ MAX_QUICK }} 个）
+      </n-text>
+      <n-checkbox-group v-model:value="tempSelected">
+        <div class="config-list">
+          <n-checkbox
+            v-for="menu in allMenus"
+            :key="menu.code"
+            :value="menu.code"
+            :disabled="!tempSelected.includes(menu.code) && tempSelected.length >= MAX_QUICK"
+            class="config-item"
+          >
+            <i :class="`${menu.icon}?mask`" class="text-14 config-icon" />
+            <span>{{ menu.name }}</span>
+          </n-checkbox>
+        </div>
+      </n-checkbox-group>
+      <template #action>
+        <n-space justify="end">
+          <n-button @click="showConfig = false">取消</n-button>
+          <n-button type="primary" @click="saveConfig">确定</n-button>
+        </n-space>
+      </template>
+    </n-modal>
   </AppPage>
 </template>
 
 <script setup>
-import { BarChart, LineChart, PieChart } from 'echarts/charts'
-import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
-import * as echarts from 'echarts/core'
-import { UniversalTransition } from 'echarts/features'
-import { CanvasRenderer } from 'echarts/renderers'
-import VChart from 'vue-echarts'
-import { useUserStore } from '@/store'
+import { ref, computed, onMounted, watch } from 'vue'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import 'dayjs/locale/zh-cn'
+import { useUserStore, useNotificationStore, usePermissionStore } from '@/store'
+import { request } from '@/utils'
+import msgApi from '@/views/message/api'
+import welcomeImg from '@/assets/images/welcome.svg'
+
+dayjs.extend(relativeTime)
+dayjs.locale('zh-cn')
+
+const MAX_QUICK = 9
+const STORAGE_KEY = 'home_quick_actions'
 
 const userStore = useUserStore()
+const notificationStore = useNotificationStore()
+const permissionStore = usePermissionStore()
 
-echarts.use([
-  TooltipComponent,
-  GridComponent,
-  LegendComponent,
-  BarChart,
-  LineChart,
-  CanvasRenderer,
-  UniversalTransition,
-  PieChart,
-])
+const lastLogin = ref(null)
+const loginCount = ref(0)
+const recentMessages = ref([])
+const showConfig = ref(false)
+const selectedCodes = ref([])
+const tempSelected = ref([])
 
-const trendOption = {
-  tooltip: {
-    trigger: 'axis',
-    axisPointer: {
-      type: 'cross',
-      crossStyle: {
-        color: '#999',
-      },
-    },
-  },
-  legend: {
-    top: '5%',
-    data: ['star', 'fork'],
-  },
-  xAxis: [
-    {
-      type: 'category',
-      data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-      axisPointer: {
-        type: 'shadow',
-      },
-    },
-  ],
-  yAxis: [
-    {
-      type: 'value',
-      min: 0,
-      max: 3000,
-      interval: 500,
-      axisLabel: {
-        formatter: '{value}',
-      },
-    },
-    {
-      type: 'value',
-      min: 0,
-      max: 500,
-      interval: 100,
-      axisLabel: {
-        formatter: '{value}',
-      },
-    },
-  ],
-  series: [
-    {
-      name: 'star',
-      type: 'line',
-      data: [200, 320, 520, 550, 600, 805, 888, 950, 1300, 2503, 2702, 2712],
-    },
-    {
-      name: 'fork',
-      yAxisIndex: 1,
-      type: 'bar',
-      data: [40, 72, 110, 115, 121, 175, 180, 201, 260, 398, 423, 455],
-    },
-  ],
+const greeting = computed(() => {
+  const h = new Date().getHours()
+  if (h < 6) return '夜深了'
+  if (h < 9) return '早上好'
+  if (h < 12) return '上午好'
+  if (h < 14) return '中午好'
+  if (h < 18) return '下午好'
+  return '晚上好'
+})
+
+const todayStr = computed(() => dayjs().format('YYYY年MM月DD日 dddd'))
+
+/** 递归提取所有有 path 的叶子菜单 */
+function collectLeafMenus(perms) {
+  const result = []
+  for (const p of perms) {
+    if (p.type !== 'MENU') continue
+    if (p.path && p.show !== false && p.enable !== false) {
+      result.push({ code: p.code, name: p.name, icon: p.icon, path: p.path })
+    }
+    if (p.children?.length) {
+      result.push(...collectLeafMenus(p.children))
+    }
+  }
+  return result
 }
 
-const skillOption = {
-  tooltip: {
-    trigger: 'item',
-    formatter({ name, value }) {
-      return `${name} ${value}%`
-    },
-  },
-  legend: {
-    left: 'center',
-  },
-  series: [
-    {
-      bottom: '12%',
-      type: 'pie',
-      radius: ['35%', '90%'],
-      avoidLabelOverlap: true,
-      itemStyle: {
-        borderRadius: 10,
-        borderColor: '#fff',
-        borderWidth: 2,
-      },
-      label: {
-        show: false,
-        position: 'center',
-      },
-      emphasis: {
-        label: {
-          show: true,
-          fontSize: 36,
-          fontWeight: 'bold',
-        },
-      },
-      labelLine: {
-        show: false,
-      },
-      data: [
-        { value: 38.5, name: 'Vue' },
-        { value: 37.0, name: 'JavaScript' },
-        { value: 6.5, name: 'CSS' },
-        { value: 6.2, name: 'HTML' },
-        { value: 1.8, name: 'Other' },
-      ],
-    },
-  ],
+/** 所有可用菜单（有权限的） */
+const allMenus = computed(() => collectLeafMenus(permissionStore.permissions))
+
+/** 当前选中的快捷入口（过滤掉已无权限的） */
+const quickActions = computed(() =>
+  selectedCodes.value
+    .map(code => allMenus.value.find(m => m.code === code))
+    .filter(Boolean)
+    .map(m => ({ ...m, icon: `${m.icon}?mask` })),
+)
+
+/** 打开配置弹窗时，复制当前选中到临时变量 */
+watch(showConfig, (val) => {
+  if (val) tempSelected.value = [...selectedCodes.value]
+})
+
+function saveConfig() {
+  selectedCodes.value = [...tempSelected.value]
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedCodes.value))
+  showConfig.value = false
+}
+
+function formatTime(time) {
+  if (!time) return ''
+  const d = dayjs(time)
+  return d.isBefore(dayjs().subtract(1, 'day')) ? d.format('YYYY-MM-DD HH:mm') : d.fromNow()
+}
+
+onMounted(async () => {
+  // 读取本地存储的配置
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+    if (Array.isArray(saved) && saved.length) {
+      // 过滤掉已无权限的入口
+      const validCodes = allMenus.value.map(m => m.code)
+      selectedCodes.value = saved.filter(code => validCodes.includes(code))
+      if (selectedCodes.value.length !== saved.length) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedCodes.value))
+      }
+    } else {
+      // 默认选前 6 个有权限的菜单
+      selectedCodes.value = allMenus.value.slice(0, MAX_QUICK).map(m => m.code)
+    }
+  } catch {
+    selectedCodes.value = allMenus.value.slice(0, MAX_QUICK).map(m => m.code)
+  }
+
+  try {
+    const { data } = await request.get('/loginlog/list', {
+      params: { username: userStore.username, pageNo: 1, pageSize: 2 },
+    })
+    const logs = data?.pageData || []
+    loginCount.value = data?.total || 0
+    lastLogin.value = logs.length > 1 ? logs[1] : logs[0] || null
+  } catch { /* ignore */ }
+
+  try {
+    const { data } = await msgApi.getMyMessages({ pageNo: 1, pageSize: 8 })
+    recentMessages.value = data?.pageData || []
+  } catch { /* ignore */ }
+})
+
+function openMessage(msg) {
+  notificationStore.detailMessage = msg
+  notificationStore.showInbox = true
+  if (!msg.isRead) {
+    msgApi.markRead(msg.id).then(() => {
+      msg.isRead = true
+      notificationStore.fetchUnreadCount()
+    })
+  }
 }
 </script>
+
+<style scoped>
+:deep(.n-card) {
+  border-radius: 8px;
+}
+.hero-card :deep(.n-card__content) {
+  padding: 0;
+}
+.hero-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  gap: 32px;
+  min-height: 200px;
+}
+.hero-text {
+  flex: 1;
+  min-width: 0;
+}
+.hero-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 10px 0 24px;
+  font-size: 22px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+}
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.meta-icon {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+.meta-label {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.4;
+}
+.meta-value {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.hero-img {
+  width: 280px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.msg-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.msg-card :deep(.n-card__content) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.msg-list {
+  flex: 1;
+}
+.msg-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.msg-item + .msg-item {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+.msg-item:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+.msg-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.msg-time {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.action-tile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.action-tile:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.config-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.config-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.config-icon {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+@media (max-width: 1280px) {
+  .hero-img { width: 220px; }
+}
+@media (max-width: 960px) {
+  .hero-img { display: none; }
+  .hero-meta { flex-wrap: wrap; gap: 12px 20px; }
+}
+
+:deep(.dark) .meta-label {
+  color: rgba(255, 255, 255, 0.5);
+}
+:deep(.dark) .meta-value {
+  color: rgba(255, 255, 255, 0.9);
+}
+:deep(.dark) .hero-title {
+  color: rgba(255, 255, 255, 0.9);
+}
+:deep(.dark) .meta-icon {
+  color: rgba(255, 255, 255, 0.5);
+}
+:deep(.dark) .config-icon {
+  color: rgba(255, 255, 255, 0.65);
+}
+</style>

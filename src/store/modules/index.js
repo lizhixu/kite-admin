@@ -1,5 +1,6 @@
 export * from './app'
 export * from './auth'
+export * from './notification'
 export * from './permission'
 export * from './router'
 export * from './tab'

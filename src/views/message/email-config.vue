@@ -2,10 +2,10 @@
   <CommonPage>
     <template #action>
       <NSpace>
-        <NButton type="primary" :loading="saving" @click="handleSave">
+        <NButton v-permission="'SaveEmailConfig'" type="primary" :loading="saving" @click="handleSave">
           保存配置
         </NButton>
-        <NButton :loading="testing" :disabled="!form.enabled" @click="handleTest">
+        <NButton v-permission="'TestEmailConfig'" :loading="testing" :disabled="!form.enabled" @click="handleTest">
           发送测试邮件
         </NButton>
       </NSpace>
