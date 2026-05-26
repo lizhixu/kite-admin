@@ -98,22 +98,32 @@ function formatTime(time) {
   margin: 0.8em 0;
   padding: 0.5em 1em;
   border-left: 4px solid #18a058;
-  background: #f8fdf9;
-  color: #555;
+  background: rgba(24, 160, 88, 0.06);
+  color: rgba(0, 0, 0, 0.65);
+}
+:root.dark .content :deep(blockquote) {
+  background: rgba(24, 160, 88, 0.1);
+  color: rgba(255, 255, 255, 0.65);
 }
 .content :deep(code) {
-  background: #f5f5f5;
+  background: rgba(0, 0, 0, 0.06);
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 0.9em;
   font-family: 'Fira Code', 'Consolas', monospace;
 }
+:root.dark .content :deep(code) {
+  background: rgba(255, 255, 255, 0.08);
+}
 .content :deep(pre) {
-  background: #f6f8fa;
+  background: rgba(0, 0, 0, 0.04);
   border-radius: 6px;
   padding: 16px;
   overflow-x: auto;
   margin: 0.8em 0;
+}
+:root.dark .content :deep(pre) {
+  background: rgba(255, 255, 255, 0.06);
 }
 .content :deep(pre code) {
   background: none;
@@ -128,18 +138,28 @@ function formatTime(time) {
 }
 .content :deep(th),
 .content :deep(td) {
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   padding: 8px 12px;
   text-align: left;
 }
+:root.dark .content :deep(th),
+:root.dark .content :deep(td) {
+  border-color: rgba(255, 255, 255, 0.12);
+}
 .content :deep(th) {
-  background: #f6f8fa;
+  background: rgba(0, 0, 0, 0.03);
   font-weight: 600;
+}
+:root.dark .content :deep(th) {
+  background: rgba(255, 255, 255, 0.05);
 }
 .content :deep(hr) {
   border: none;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   margin: 1.2em 0;
+}
+:root.dark .content :deep(hr) {
+  border-top-color: rgba(255, 255, 255, 0.12);
 }
 .content :deep(img) {
   max-width: 100%;

@@ -33,7 +33,7 @@
           <div
             v-if="inboxList.length === 0"
             class="py-48 text-center"
-            style="color: #999"
+            style="opacity: 0.5"
           >
             暂无消息
           </div>
@@ -214,11 +214,17 @@ onBeforeUnmount(() => {
 .inbox-item {
   padding: 12px 16px;
   cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   transition: background 0.2s;
 }
 .inbox-item:hover {
-  background: #f8f8f8;
+  background: rgba(0, 0, 0, 0.03);
+}
+:root.dark .inbox-item {
+  border-bottom-color: rgba(255, 255, 255, 0.09);
+}
+:root.dark .inbox-item:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 .inbox-item.unread .inbox-title {
   font-weight: 600;
@@ -244,13 +250,19 @@ onBeforeUnmount(() => {
 }
 .inbox-time {
   font-size: 12px;
-  color: #999;
+  color: rgba(0, 0, 0, 0.4);
 }
 .inbox-snippet {
   font-size: 12px;
-  color: #666;
+  color: rgba(0, 0, 0, 0.5);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+:root.dark .inbox-time {
+  color: rgba(255, 255, 255, 0.4);
+}
+:root.dark .inbox-snippet {
+  color: rgba(255, 255, 255, 0.5);
 }
 </style>
