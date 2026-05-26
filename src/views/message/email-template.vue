@@ -34,7 +34,7 @@
                   <n-tag v-if="tmpl.isBuiltin" size="tiny" type="success" :bordered="false">内置</n-tag>
                 </template>
                 <template #description>
-                  <span class="text-12" style="color: #999;">{{ tmpl.scene }}</span>
+                  <span class="text-12" style="opacity: 0.5">{{ tmpl.scene }}</span>
                 </template>
               </n-thing>
             </n-list-item>
@@ -240,8 +240,11 @@ onMounted(loadTemplates)
 }
 .var-desc {
   font-size: 12px;
-  color: #999;
+  color: rgba(0, 0, 0, 0.4);
   padding-left: 2px;
+}
+:root.dark .var-desc {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .code-editor :deep(textarea) {
@@ -252,12 +255,16 @@ onMounted(loadTemplates)
 }
 
 .preview-body {
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 6px;
   padding: 20px;
-  background: #fafafa;
+  background: rgba(0, 0, 0, 0.02);
   max-height: 500px;
   overflow-y: auto;
   margin-top: 12px;
+}
+:root.dark .preview-body {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
 }
 </style>

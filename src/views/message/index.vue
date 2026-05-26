@@ -359,12 +359,16 @@ function formatTime(time) {
 
 .modal-preview {
   min-height: 240px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 4px;
   padding: 16px;
-  background: #fafafa;
+  background: rgba(0, 0, 0, 0.02);
   overflow-y: auto;
   max-height: 460px;
+}
+:root.dark .modal-preview {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
 }
 .modal-preview :deep(h1),
 .modal-preview :deep(h2),
@@ -374,31 +378,79 @@ function formatTime(time) {
   font-weight: 600;
   line-height: 1.4;
 }
-.modal-preview :deep(h1) { font-size: 1.4em; }
-.modal-preview :deep(h2) { font-size: 1.2em; }
-.modal-preview :deep(h3) { font-size: 1.1em; }
-.modal-preview :deep(p) { margin: 0.5em 0; line-height: 1.7; }
+.modal-preview :deep(h1) {
+  font-size: 1.4em;
+}
+.modal-preview :deep(h2) {
+  font-size: 1.2em;
+}
+.modal-preview :deep(h3) {
+  font-size: 1.1em;
+}
+.modal-preview :deep(p) {
+  margin: 0.5em 0;
+  line-height: 1.7;
+}
 .modal-preview :deep(ul),
-.modal-preview :deep(ol) { padding-left: 1.5em; margin: 0.5em 0; }
+.modal-preview :deep(ol) {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
 .modal-preview :deep(blockquote) {
-  margin: 0.6em 0; padding: 0.4em 0.8em;
+  margin: 0.6em 0;
+  padding: 0.4em 0.8em;
   border-left: 3px solid #18a058;
-  background: #f0faf4; color: #555;
+  background: rgba(24, 160, 88, 0.06);
+  color: rgba(0, 0, 0, 0.65);
+}
+:root.dark .modal-preview :deep(blockquote) {
+  background: rgba(24, 160, 88, 0.1);
+  color: rgba(255, 255, 255, 0.65);
 }
 .modal-preview :deep(code) {
-  background: #eee; padding: 2px 5px; border-radius: 3px;
-  font-size: 0.9em; font-family: 'Consolas', monospace;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  font-family: 'Consolas', monospace;
+}
+:root.dark .modal-preview :deep(code) {
+  background: rgba(255, 255, 255, 0.08);
 }
 .modal-preview :deep(pre) {
-  background: #f6f8fa; border-radius: 4px; padding: 12px;
-  overflow-x: auto; margin: 0.6em 0;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+  padding: 12px;
+  overflow-x: auto;
+  margin: 0.6em 0;
 }
-.modal-preview :deep(pre code) { background: none; padding: 0; }
-.modal-preview :deep(table) { border-collapse: collapse; width: 100%; margin: 0.6em 0; }
+:root.dark .modal-preview :deep(pre) {
+  background: rgba(255, 255, 255, 0.06);
+}
+.modal-preview :deep(pre code) {
+  background: none;
+  padding: 0;
+}
+.modal-preview :deep(table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.6em 0;
+}
 .modal-preview :deep(th),
-.modal-preview :deep(td) { border: 1px solid #e0e0e0; padding: 6px 10px; text-align: left; }
+.modal-preview :deep(td) {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 6px 10px;
+  text-align: left;
+}
+:root.dark .modal-preview :deep(th),
+:root.dark .modal-preview :deep(td) {
+  border-color: rgba(255, 255, 255, 0.12);
+}
 .modal-preview :deep(th) {
-  background: #f6f8fa;
+  background: rgba(0, 0, 0, 0.03);
   font-weight: 600;
+}
+:root.dark .modal-preview :deep(th) {
+  background: rgba(255, 255, 255, 0.05);
 }
 </style>
