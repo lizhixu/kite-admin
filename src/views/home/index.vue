@@ -75,20 +75,23 @@
         </n-card>
       </n-gi>
       <n-gi :span="10">
-        <n-card title="快捷入口" size="small" style="height: 100%">
+        <n-card title="快捷入口" size="small" class="quick-card">
           <template #header-extra>
             <n-button text type="primary" @click="showConfig = true">
               <template #icon><i class="i-fe:settings" /></template>
             </n-button>
           </template>
-          <n-grid :cols="3" :x-gap="8" :y-gap="8">
-            <n-gi v-for="action in quickActions" :key="action.code">
-              <div class="action-tile" @click="$router.push(action.path)">
-                <i :class="action.icon" class="text-16" />
-                <n-text depth="2" style="font-size: 13px">{{ action.name }}</n-text>
-              </div>
-            </n-gi>
-          </n-grid>
+          <div class="quick-grid">
+            <div
+              v-for="action in quickActions"
+              :key="action.code"
+              class="action-tile"
+              @click="$router.push(action.path)"
+            >
+              <i :class="action.icon" class="action-icon" />
+              <span class="action-label">{{ action.name }}</span>
+            </div>
+          </div>
           <n-empty v-if="!quickActions.length" description="暂未配置快捷入口" class="py-16" />
         </n-card>
       </n-gi>
@@ -234,7 +237,7 @@ onMounted(async () => {
   } catch { /* ignore */ }
 
   try {
-    const { data } = await msgApi.getMyMessages({ pageNo: 1, pageSize: 8 })
+    const { data } = await msgApi.getMyMessages({ pageNo: 1, pageSize: 20 })
     recentMessages.value = data?.pageData || []
   } catch { /* ignore */ }
 })
@@ -277,7 +280,7 @@ function openMessage(msg) {
   margin: 10px 0 24px;
   font-size: 22px;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.88);
+  color: var(--home-title-color);
 }
 .hero-meta {
   display: flex;
@@ -291,17 +294,17 @@ function openMessage(msg) {
 }
 .meta-icon {
   font-size: 16px;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--home-icon-color);
   flex-shrink: 0;
 }
 .meta-label {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--home-secondary-color);
   line-height: 1.4;
 }
 .meta-value {
   font-size: 14px;
-  color: rgba(0, 0, 0, 0.85);
+  color: var(--home-text-color);
   font-weight: 500;
   line-height: 1.4;
 }
@@ -309,6 +312,12 @@ function openMessage(msg) {
   width: 280px;
   height: auto;
   flex-shrink: 0;
+  transition: filter 0.3s;
+}
+
+/* Dark mode */
+:global(.dark) .hero-img {
+  filter: brightness(0.8) saturate(0.9);
 }
 
 .msg-card {
@@ -322,23 +331,23 @@ function openMessage(msg) {
   flex-direction: column;
 }
 .msg-list {
-  flex: 1;
+  height: 248px;
+  overflow-y: auto;
 }
 .msg-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 4px;
-  border-radius: 4px;
-  cursor: pointer;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background 0.15s;
 }
 .msg-item + .msg-item {
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid var(--home-border-color);
 }
 .msg-item:hover {
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--home-hover-color);
 }
 .msg-title {
   flex: 1;
@@ -347,23 +356,58 @@ function openMessage(msg) {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: 13px;
+  line-height: 1.5;
 }
 .msg-time {
   flex-shrink: 0;
   font-size: 12px;
+  line-height: 1.5;
+}
+
+.quick-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.quick-card :deep(.n-card__content) {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
 }
 
 .action-tile {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 6px;
+  padding: 12px 8px;
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s;
 }
 .action-tile:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--home-hover-color);
+}
+.action-icon {
+  font-size: 20px;
+  color: var(--home-icon-color);
+}
+.action-label {
+  font-size: 12px;
+  color: var(--home-text-color);
+  text-align: center;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .config-list {
@@ -378,7 +422,27 @@ function openMessage(msg) {
   padding: 6px 0;
 }
 .config-icon {
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--home-icon-color);
+}
+
+/* Light mode */
+:global(:root) {
+  --home-title-color: rgba(0, 0, 0, 0.88);
+  --home-text-color: rgba(0, 0, 0, 0.85);
+  --home-secondary-color: rgba(0, 0, 0, 0.45);
+  --home-icon-color: rgba(0, 0, 0, 0.45);
+  --home-border-color: rgba(0, 0, 0, 0.06);
+  --home-hover-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Dark mode */
+:global(.dark) {
+  --home-title-color: rgba(255, 255, 255, 0.9);
+  --home-text-color: rgba(255, 255, 255, 0.88);
+  --home-secondary-color: rgba(255, 255, 255, 0.5);
+  --home-icon-color: rgba(255, 255, 255, 0.5);
+  --home-border-color: rgba(255, 255, 255, 0.08);
+  --home-hover-color: rgba(255, 255, 255, 0.06);
 }
 
 @media (max-width: 1280px) {
@@ -387,21 +451,5 @@ function openMessage(msg) {
 @media (max-width: 960px) {
   .hero-img { display: none; }
   .hero-meta { flex-wrap: wrap; gap: 12px 20px; }
-}
-
-:deep(.dark) .meta-label {
-  color: rgba(255, 255, 255, 0.5);
-}
-:deep(.dark) .meta-value {
-  color: rgba(255, 255, 255, 0.9);
-}
-:deep(.dark) .hero-title {
-  color: rgba(255, 255, 255, 0.9);
-}
-:deep(.dark) .meta-icon {
-  color: rgba(255, 255, 255, 0.5);
-}
-:deep(.dark) .config-icon {
-  color: rgba(255, 255, 255, 0.65);
 }
 </style>
