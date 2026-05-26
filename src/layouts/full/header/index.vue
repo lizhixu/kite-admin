@@ -14,13 +14,10 @@
 
     <div class="ml-auto flex flex-shrink-0 items-center px-12 text-18">
       <BeginnerGuide />
-
       <ToggleTheme />
-
       <Fullscreen />
-
+      <NotificationBell />
       <ThemeSetting class="mr-16" />
-
       <UserAvatar />
     </div>
   </AppCard>
@@ -28,5 +25,5 @@
 
 <script setup>
 import { ToggleTheme } from '@/components'
-import { BeginnerGuide, BreadCrumb, Fullscreen, MenuCollapse, UserAvatar } from '@/layouts/components'
+import { BeginnerGuide, BreadCrumb, Fullscreen, MenuCollapse, NotificationBell, UserAvatar } from '@/layouts/components'
 </script>
