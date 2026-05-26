@@ -17,8 +17,8 @@
 
       <div class="w-320 flex-col px-20 py-32">
         <h2 class="f-c-c text-24 text-#6a6a6a font-normal">
-          <img src="@/assets/images/logo.png" class="mr-12 h-50">
-          {{ title }}
+          <img :src="systemConfigStore.logo || '/logo.png'" class="mr-12 h-50" @error="handleLogoError">
+          {{ systemConfigStore.siteName }}
         </h2>
         <n-input
           v-model:value="loginInfo.username"
@@ -91,14 +91,18 @@
 
 <script setup>
 import { useStorage } from '@vueuse/core'
-import { useAuthStore } from '@/store'
+import { useAuthStore, useSystemConfigStore } from '@/store'
 import { lStorage, throttle } from '@/utils'
 import api from './api'
 
 const authStore = useAuthStore()
+const systemConfigStore = useSystemConfigStore()
 const router = useRouter()
 const route = useRoute()
-const title = import.meta.env.VITE_TITLE
+
+function handleLogoError(e) {
+  e.target.src = '/logo.png'
+}
 
 const loginInfo = ref({
   username: '',

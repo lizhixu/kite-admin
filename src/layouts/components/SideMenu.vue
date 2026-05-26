@@ -33,9 +33,14 @@ const appStore = useAppStore()
 const permissionStore = usePermissionStore()
 
 const activeKey = computed(() => route.meta?.parentKey || route.name)
+const ancestorsOfActiveKey = computed(() => {
+  if (!activeKey.value || !permissionStore.menus.length) return []
+  return getAncestors(activeKey.value) || []
+})
 
 const menu = ref(null)
 const expandedKeys = ref([])
+const manuallyCollapsed = ref(new Set())
 
 watch(
   [activeKey, () => permissionStore.menus.length],
@@ -43,15 +48,40 @@ watch(
     await nextTick()
     if (!activeKey.value || !permissionStore.menus.length)
       return
+    // Route changed — clear manual collapse state and expand ancestors for new route
+    manuallyCollapsed.value = new Set()
     const ancestors = getAncestors(activeKey.value)
-    if (ancestors && ancestors.length)
-      expandedKeys.value = ancestors
+    expandedKeys.value = ancestors && ancestors.length
+      ? ancestors.filter(k => !manuallyCollapsed.value.has(k))
+      : []
     menu.value?.showOption()
   },
   { immediate: true },
 )
 
 function handleExpandedKeysUpdate(keys) {
+  const prev = new Set(expandedKeys.value)
+  const next = new Set(keys)
+
+  // Detect newly expanded keys — if any, this is an expand action;
+  // the accordion auto-collapsed groups should NOT be treated as manual collapse
+  let hasExpand = false
+  for (const k of next) {
+    if (!prev.has(k)) {
+      hasExpand = true
+      manuallyCollapsed.value.delete(k)
+    }
+  }
+
+  // Only track manual collapse when the user collapsed a group
+  // without expanding another (pure collapse action)
+  if (!hasExpand) {
+    for (const k of prev) {
+      if (!next.has(k) && ancestorsOfActiveKey.value.includes(k))
+        manuallyCollapsed.value.add(k)
+    }
+  }
+
   expandedKeys.value = keys
 }
 

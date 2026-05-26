@@ -42,7 +42,7 @@
         </n-card>
 
         <!-- Right: Editor -->
-        <div class="template-editor">
+        <div class="template-editor cus-scroll">
           <template v-if="selected">
             <n-card size="small" :bordered="true">
               <template #header>
@@ -213,7 +213,6 @@ onMounted(loadTemplates)
 .template-editor {
   flex: 1;
   min-width: 0;
-  overflow-y: auto;
 }
 
 .template-vars {

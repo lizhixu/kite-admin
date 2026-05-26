@@ -53,7 +53,6 @@
         <n-card title="最近消息" size="small" class="msg-card">
           <template #header-extra>
             <n-button text type="primary" @click="notificationStore.showInbox = true">
-              查看全部
               <template #icon><i class="i-fe:chevron-right" /></template>
             </n-button>
           </template>
@@ -285,15 +284,15 @@ function openMessage(msg) {
 .hero-meta {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 28px;
 }
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 .meta-icon {
-  font-size: 16px;
+  font-size: 20px;
   color: var(--home-icon-color);
   flex-shrink: 0;
 }
@@ -301,6 +300,7 @@ function openMessage(msg) {
   font-size: 12px;
   color: var(--home-secondary-color);
   line-height: 1.4;
+  margin-bottom: 4px;
 }
 .meta-value {
   font-size: 14px;
