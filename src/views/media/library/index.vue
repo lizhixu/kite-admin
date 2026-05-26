@@ -148,6 +148,7 @@ const scope = ref('mine')
 
 const configs = ref([])
 const currentConfigId = ref(null)
+const configIdInitialized = ref(false)
 const currentFolderId = ref(0)
 const currentFolderPath = ref('')
 const folderTreeRef = ref(null)
@@ -185,18 +186,23 @@ async function loadConfigs() {
     const { data = [] } = await api.listConfigs()
     configs.value = data || []
     if (!currentConfigId.value) {
+      const savedId = Number(localStorage.getItem('media_storage_config_id'))
+      const saved = savedId && configs.value.find(c => c.id === savedId && c.enabled)
       const def = configs.value.find(c => c.isDefault && c.enabled)
-      currentConfigId.value = def?.id ?? configs.value.find(c => c.enabled)?.id ?? null
+      currentConfigId.value = saved?.id ?? def?.id ?? configs.value.find(c => c.enabled)?.id ?? null
     }
+    nextTick(() => { configIdInitialized.value = true })
   }
   catch (err) {
     console.error(err)
   }
 }
 
-watch(currentConfigId, () => {
+watch(currentConfigId, (val) => {
   currentFolderId.value = 0
   currentFolderPath.value = ''
+  if (val && configIdInitialized.value)
+    localStorage.setItem('media_storage_config_id', val)
 })
 
 function onFolderChange(node) {

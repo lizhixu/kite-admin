@@ -24,6 +24,8 @@ export default {
 
   // 文件夹
   listFolders: configId => request.get('/media/folder/tree', { params: { configId } }),
+  resolveFolder: (configId, path, autoCreate = false) =>
+    request.get('/media/folder/resolve', { params: { configId, path, autoCreate: autoCreate ? '1' : '0' } }),
   createFolder: data => request.post('/media/folder', data),
   renameFolder: (id, name) => request.patch(`/media/folder/${id}`, { name }),
   deleteFolder: (id, cascade = false) =>

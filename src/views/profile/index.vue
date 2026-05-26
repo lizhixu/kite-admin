@@ -137,6 +137,7 @@ async function handleChangeAvatar() {
     accept: 'image/',
     multiple: false,
     title: '选择头像',
+    folderPath: 'avatars',
   })
   const media = items?.[0]
   if (!media?.url)

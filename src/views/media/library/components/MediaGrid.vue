@@ -163,6 +163,8 @@ async function fetchList() {
 watch(
   () => [props.configId, props.folderId, props.filters, props.acceptPrefix],
   () => {
+    if (!props.configId)
+      return
     page.value = 1
     fetchList()
   },
