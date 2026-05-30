@@ -31,7 +31,7 @@
       <template v-if="view === 'list'">
         <NSpin :show="inboxLoading">
           <div
-            v-if="inboxList.length === 0"
+            v-if="store.inboxMessages.length === 0"
             class="py-48 text-center"
             style="opacity: 0.5"
           >
@@ -40,7 +40,7 @@
 
           <div v-else class="inbox-list">
             <div
-              v-for="msg in inboxList"
+              v-for="msg in store.inboxMessages"
               :key="msg.id"
               class="inbox-item"
               :class="{ unread: !msg.isRead }"
@@ -60,11 +60,11 @@
             </div>
           </div>
 
-          <div v-if="inboxTotal > inboxPageSize" class="py-12 flex justify-center">
+          <div v-if="store.inboxTotal > store.inboxPageSize" class="py-12 flex justify-center">
             <NPagination
-              v-model:page="inboxPage"
-              :page-size="inboxPageSize"
-              :item-count="inboxTotal"
+              v-model:page="store.inboxPage"
+              :page-size="store.inboxPageSize"
+              :item-count="store.inboxTotal"
               @update:page="loadInbox"
             />
           </div>
@@ -92,7 +92,6 @@ import {
 import { MessageDetail } from '@/components'
 import { useNotificationStore } from '@/store/modules/notification'
 import { stripMarkdown } from '@/utils/markdown'
-import api from '@/views/message/api'
 
 const store = useNotificationStore()
 
@@ -111,10 +110,6 @@ watch(() => store.detailMessage, (val) => {
   }
 })
 const inboxLoading = ref(false)
-const inboxList = ref([])
-const inboxTotal = ref(0)
-const inboxPage = ref(1)
-const inboxPageSize = 15
 
 watch(() => store.showInbox, (val) => {
   if (val)
@@ -130,29 +125,21 @@ function resetView() {
 async function loadInbox() {
   inboxLoading.value = true
   try {
-    const { data } = await api.getMyMessages({ pageNo: inboxPage.value, pageSize: inboxPageSize })
-    inboxList.value = data?.pageData || []
-    inboxTotal.value = data?.total || 0
+    await store.fetchInbox()
   }
   catch { /* ignore */ }
   inboxLoading.value = false
 }
 
-function handleMarkAllRead() {
-  store.markAllAsRead()
-  loadInbox()
+async function handleMarkAllRead() {
+  await store.markAllAsRead()
 }
 
-function openDetail(msg) {
+async function openDetail(msg) {
   detailMsg.value = msg
   view.value = 'detail'
-  if (!msg.isRead) {
-    api.markRead(msg.id).then(() => {
-      msg.isRead = true
-      msg.readAt = new Date().toISOString()
-      store.fetchUnreadCount()
-    })
-  }
+  if (!msg.isRead)
+    await store.markAsRead(msg.id)
 }
 
 // ====== Helpers ======

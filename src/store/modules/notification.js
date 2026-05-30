@@ -4,10 +4,18 @@ import api from '@/views/message/api'
 export const useNotificationStore = defineStore('notification', {
   state: () => ({
     unreadCount: 0,
+    inboxMessages: [],
+    inboxTotal: 0,
+    inboxPage: 1,
+    inboxPageSize: 15,
     abortCtrl: null,
     showInbox: false,
     detailMessage: null,
   }),
+
+  getters: {
+    recentMessages: state => state.inboxMessages.slice(0, 8),
+  },
 
   actions: {
     async fetchUnreadCount() {
@@ -15,14 +23,50 @@ export const useNotificationStore = defineStore('notification', {
       this.unreadCount = data?.count ?? 0
     },
 
+    async fetchInbox(params = {}) {
+      const pageNo = params.pageNo ?? this.inboxPage
+      const pageSize = params.pageSize ?? this.inboxPageSize
+      const { data } = await api.getMyMessages({ pageNo, pageSize })
+      this.inboxMessages = data?.pageData ?? []
+      this.inboxTotal = data?.total ?? 0
+      this.inboxPage = pageNo
+      this.inboxPageSize = pageSize
+      await this.fetchUnreadCount()
+    },
+
     async markAsRead(id) {
       await api.markRead(id)
-      if (this.unreadCount > 0) this.unreadCount--
+      this.inboxMessages.forEach((msg) => {
+        if (msg.id === id && !msg.isRead) {
+          msg.isRead = true
+          msg.readAt = new Date().toISOString()
+        }
+      })
+      if (this.detailMessage?.id === id && !this.detailMessage.isRead) {
+        this.detailMessage.isRead = true
+        this.detailMessage.readAt = new Date().toISOString()
+      }
+      await this.fetchUnreadCount()
     },
 
     async markAllAsRead() {
       await api.markAllRead()
       this.unreadCount = 0
+      this.inboxMessages.forEach((msg) => {
+        msg.isRead = true
+        msg.readAt ||= new Date().toISOString()
+      })
+      if (this.detailMessage && !this.detailMessage.isRead) {
+        this.detailMessage.isRead = true
+        this.detailMessage.readAt ||= new Date().toISOString()
+      }
+    },
+
+    async openMessage(msg) {
+      this.detailMessage = msg
+      this.showInbox = true
+      if (!msg.isRead)
+        await this.markAsRead(msg.id)
     },
 
     connectSSE() {
@@ -76,7 +120,6 @@ export const useNotificationStore = defineStore('notification', {
           }
         } catch (err) {
           if (err.name !== 'AbortError') {
-            // Reconnect after 5s
             setTimeout(() => {
               if (this.abortCtrl) connect()
             }, 5000)
@@ -88,13 +131,15 @@ export const useNotificationStore = defineStore('notification', {
       connect()
     },
 
-    _handleSSEEvent(type, data) {
+    async _handleSSEEvent(type, data) {
       try {
         const parsed = JSON.parse(data)
         if (type === 'init') {
           this.unreadCount = parsed.unreadCount ?? 0
         } else if (type === 'message') {
-          this.unreadCount++
+          this.fetchUnreadCount()
+          if (this.inboxMessages.length)
+            this.fetchInbox({ pageNo: this.inboxPage, pageSize: this.inboxPageSize })
           window.$notification.info({
             title: '新消息',
             content: parsed.title || '您有一条新消息',

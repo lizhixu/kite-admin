@@ -56,9 +56,9 @@
               <template #icon><i class="i-fe:chevron-right" /></template>
             </n-button>
           </template>
-          <div v-if="recentMessages.length" class="msg-list">
+          <div v-if="notificationStore.recentMessages.length" class="msg-list">
             <div
-              v-for="msg in recentMessages"
+              v-for="msg in notificationStore.recentMessages"
               :key="msg.id"
               class="msg-item"
               @click="openMessage(msg)"
@@ -132,7 +132,6 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/zh-cn'
 import { useUserStore, useNotificationStore, usePermissionStore } from '@/store'
 import { request } from '@/utils'
-import msgApi from '@/views/message/api'
 import welcomeImg from '@/assets/images/welcome.svg'
 
 dayjs.extend(relativeTime)
@@ -147,7 +146,6 @@ const permissionStore = usePermissionStore()
 
 const lastLogin = ref(null)
 const loginCount = ref(0)
-const recentMessages = ref([])
 const showConfig = ref(false)
 const selectedCodes = ref([])
 const tempSelected = ref([])
@@ -236,20 +234,12 @@ onMounted(async () => {
   } catch { /* ignore */ }
 
   try {
-    const { data } = await msgApi.getMyMessages({ pageNo: 1, pageSize: 20 })
-    recentMessages.value = data?.pageData || []
+    await notificationStore.fetchInbox({ pageNo: 1, pageSize: 15 })
   } catch { /* ignore */ }
 })
 
 function openMessage(msg) {
-  notificationStore.detailMessage = msg
-  notificationStore.showInbox = true
-  if (!msg.isRead) {
-    msgApi.markRead(msg.id).then(() => {
-      msg.isRead = true
-      notificationStore.fetchUnreadCount()
-    })
-  }
+  notificationStore.openMessage(msg)
 }
 </script>
 

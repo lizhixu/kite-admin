@@ -124,7 +124,7 @@
       :data="jobRows"
       :loading="jobsLoading"
       :pagination="jobsPagination"
-      :scroll-x="1100"
+      :scroll-x="1500"
       size="small"
       remote
       striped
@@ -183,8 +183,29 @@
             :autosize="{ minRows: 4, maxRows: 10 }"
           />
         </n-form-item>
-        <n-form-item label="最大重试次数">
-          <n-input-number v-model:value="newJobRetries" :min="0" :max="10" style="width: 200px" />
+        <NGrid :cols="2" :x-gap="12">
+          <NGridItem>
+            <n-form-item label="最大重试次数">
+              <n-input-number v-model:value="newJobRetries" :min="0" :max="10" style="width: 100%" />
+            </n-form-item>
+          </NGridItem>
+          <NGridItem>
+            <n-form-item label="优先级">
+              <n-input-number v-model:value="newJobPriority" :min="0" :max="9999" style="width: 100%" />
+            </n-form-item>
+          </NGridItem>
+        </NGrid>
+        <n-form-item label="延迟到">
+          <NDatePicker
+            v-model:value="newJobDelayUntil"
+            type="datetime"
+            clearable
+            format="yyyy-MM-dd HH:mm:ss"
+            style="width: 100%"
+          />
+        </n-form-item>
+        <n-form-item label="唯一键">
+          <n-input v-model:value="newJobUniqueKey" placeholder="同队列内未完成任务唯一，例如 order:123" clearable />
         </n-form-item>
       </n-form>
       <template #footer>
@@ -208,6 +229,15 @@
         </NDescriptionsItem>
         <NDescriptionsItem label="重试">
           {{ currentJob.retryCount || 0 }} / {{ currentJob.maxRetries || 0 }}
+        </NDescriptionsItem>
+        <NDescriptionsItem label="优先级">
+          {{ currentJob.priority || 0 }}
+        </NDescriptionsItem>
+        <NDescriptionsItem label="延迟到">
+          {{ currentJob.delayUntil ? formatDateTime(currentJob.delayUntil) : '-' }}
+        </NDescriptionsItem>
+        <NDescriptionsItem label="唯一键">
+          {{ currentJob.uniqueKey || '-' }}
         </NDescriptionsItem>
         <NDescriptionsItem label="耗时">
           {{ formatDuration(currentJob.duration) }}
@@ -297,6 +327,10 @@ function formatDuration(ms) {
   const m = Math.floor(ms / 60_000)
   const s = ((ms % 60_000) / 1000).toFixed(1)
   return `${m}m ${s}s`
+}
+
+function isDelayedPending(job) {
+  return job.status === 'PENDING' && job.delayUntil && new Date(job.delayUntil).getTime() > Date.now()
 }
 
 // ====== Queue 数据 ======
@@ -396,11 +430,17 @@ function openEdit() {
 const addJobVisible = ref(false)
 const newJobPayload = ref('')
 const newJobRetries = ref(0)
+const newJobPriority = ref(0)
+const newJobDelayUntil = ref(null)
+const newJobUniqueKey = ref('')
 const addingJob = ref(false)
 
 function openAddJob() {
   newJobPayload.value = ''
   newJobRetries.value = queue.value.maxRetries || 0
+  newJobPriority.value = 0
+  newJobDelayUntil.value = null
+  newJobUniqueKey.value = ''
   addJobVisible.value = true
 }
 
@@ -416,11 +456,17 @@ async function submitNewJob() {
   }
   addingJob.value = true
   try {
-    await api.addJob(queueId, {
+    const { data } = await api.addJob(queueId, {
       payload: newJobPayload.value,
       maxRetries: newJobRetries.value,
+      priority: newJobPriority.value || 0,
+      delayUntil: newJobDelayUntil.value ? new Date(newJobDelayUntil.value).toISOString() : null,
+      uniqueKey: newJobUniqueKey.value || '',
     })
-    $message.success('投递成功')
+    if (newJobUniqueKey.value && data?.uniqueKey === newJobUniqueKey.value)
+      $message.success(`投递成功，任务 #${data.id}`)
+    else
+      $message.success('投递成功')
     addJobVisible.value = false
     loadJobs(1)
     loadQueue()
@@ -579,8 +625,31 @@ const jobColumns = [
     title: '状态',
     key: 'status',
     width: 90,
-    render: ({ status }) =>
-      h(NTag, { type: jobStatusTag[status] || 'default', bordered: false, size: 'small' }, { default: () => status }),
+    render: row =>
+      h(
+        NTag,
+        { type: isDelayedPending(row) ? 'default' : jobStatusTag[row.status] || 'default', bordered: false, size: 'small' },
+        { default: () => isDelayedPending(row) ? '延迟等待' : row.status },
+      ),
+  },
+  {
+    title: '优先级',
+    key: 'priority',
+    width: 80,
+    render: row => row.priority || 0,
+  },
+  {
+    title: '延迟到',
+    key: 'delayUntil',
+    width: 160,
+    render: row => (row.delayUntil ? formatDateTime(row.delayUntil) : '-'),
+  },
+  {
+    title: '唯一键',
+    key: 'uniqueKey',
+    minWidth: 160,
+    ellipsis: { tooltip: true },
+    render: row => row.uniqueKey || '-',
   },
   {
     title: 'Payload',
