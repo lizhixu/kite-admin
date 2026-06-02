@@ -3,8 +3,7 @@
     <div class="mb-12 flex items-center justify-between">
       <span class="text-14 font-medium opacity-70">文件夹</span>
       <NButton
-        v-if="!readonly"
-        v-permission="'ManageFolder'"
+        v-if="canManageFolder"
         size="tiny"
         type="primary"
         secondary
@@ -78,6 +77,7 @@
 
 <script setup>
 import { NButton, NDropdown, NInput, NModal, NScrollbar, NTree } from 'naive-ui'
+import { hasPermissionCode } from '@/utils/permission'
 import { buildFolderTree } from '../../utils'
 import api from '../api'
 
@@ -90,6 +90,7 @@ const props = defineProps({
 const emit = defineEmits(['update:selectedFolderId', 'change'])
 
 const folders = ref([])
+const canManageFolder = computed(() => !props.readonly && hasPermissionCode('ManageFolder'))
 const treeData = computed(() => buildFolderTree(folders.value))
 const selectedKeys = computed(() => [props.selectedFolderId ?? 0])
 const defaultExpandedKeys = ref([0])
@@ -124,7 +125,7 @@ const ctxX = ref(0)
 const ctxY = ref(0)
 const ctxNode = ref(null)
 const ctxOptions = computed(() => {
-  if (props.readonly)
+  if (!canManageFolder.value)
     return []
   const isRoot = !ctxNode.value || ctxNode.value.id === 0
   const opts = [
@@ -143,7 +144,7 @@ const ctxOptions = computed(() => {
 function nodeProps({ option }) {
   return {
     onContextmenu(e) {
-      if (props.readonly)
+      if (!canManageFolder.value)
         return
       e.preventDefault()
       ctxNode.value = option
@@ -188,6 +189,10 @@ const createUnderLabel = computed(() => {
 })
 
 function onCreate(node) {
+  if (!canManageFolder.value) {
+    window.$message.warning('无文件夹管理权限')
+    return
+  }
   if (!props.configId) {
     window.$message.warning('请先选择存储')
     return
@@ -224,6 +229,10 @@ const renameLoading = ref(false)
 const renameTarget = ref(null)
 
 function openRename(node) {
+  if (!canManageFolder.value) {
+    window.$message.warning('无文件夹管理权限')
+    return
+  }
   renameTarget.value = node
   renameInput.value = node.label
   renameShow.value = true
@@ -250,6 +259,10 @@ async function confirmRename() {
 
 // --- 删除 ---
 function confirmDelete(node) {
+  if (!canManageFolder.value) {
+    window.$message.warning('无文件夹管理权限')
+    return
+  }
   window.$dialog.warning({
     title: '删除文件夹',
     content: `确定删除文件夹 “${node.label}” 吗？非空文件夹将提示是否级联删除。`,

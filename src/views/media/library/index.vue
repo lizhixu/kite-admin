@@ -73,6 +73,7 @@
             <template #actions="{ checkedIds, clearChecked }">
               <NButton
                 v-if="checkedIds.length"
+                v-permission="'MoveMedia'"
                 size="small"
                 @click="openMoveDialog(checkedIds, clearChecked)"
               >
@@ -130,8 +131,8 @@
 
 <script setup>
 import { NButton, NInput, NModal, NRadioButton, NRadioGroup, NSelect, NSpace, NTreeSelect } from 'naive-ui'
-import { useRoute } from 'vue-router'
 import { CommonPage } from '@/components'
+import { hasPermissionCode } from '@/utils/permission'
 import { buildFolderTree } from '../utils'
 import api from './api'
 import FolderTree from './components/FolderTree.vue'
@@ -140,10 +141,7 @@ import UploadDialog from './components/UploadDialog.vue'
 
 defineOptions({ name: 'MediaLibrary' })
 
-const route = useRoute()
-const canViewAll = computed(
-  () => !!route.meta?.btns?.some(b => b.code === 'ViewAllMedia'),
-)
+const canViewAll = computed(() => hasPermissionCode('ViewAllMedia'))
 const scope = ref('mine')
 
 const configs = ref([])

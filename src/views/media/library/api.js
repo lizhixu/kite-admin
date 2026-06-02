@@ -31,6 +31,6 @@ export default {
   deleteFolder: (id, cascade = false) =>
     request.delete(`/media/folder/${id}`, { params: cascade ? { cascade: 1 } : {} }),
 
-  // 存储配置（媒体库页面只需要列表用于选择）
-  listConfigs: () => request.get('/storage/config'),
+  // 存储配置（媒体库页面只需要非敏感选项用于选择）
+  listConfigs: () => request.get('/storage/options'),
 }

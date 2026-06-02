@@ -166,12 +166,14 @@ import {
 } from 'naive-ui'
 import { CommonPage, MeModal } from '@/components'
 import { useCrud } from '@/composables'
+import { hasPermissionCode } from '@/utils/permission'
 import api from './api'
 
 defineOptions({ name: 'StorageConfig' })
 
 const configs = ref([])
 const loading = ref(false)
+const canManageStorage = computed(() => hasPermissionCode('ManageStorage'))
 
 const {
   modalRef,
@@ -197,10 +199,14 @@ const {
 })
 
 function handleAdd() {
+  if (!canManageStorage.value)
+    return window.$message.warning('无存储管理权限')
   crudHandleAdd()
 }
 
 function handleEdit(row) {
+  if (!canManageStorage.value)
+    return window.$message.warning('无存储管理权限')
   crudHandleEdit({ ...row, secretKey: '' })
 }
 
@@ -219,6 +225,8 @@ async function refresh() {
 }
 
 async function setDefault(row) {
+  if (!canManageStorage.value)
+    return window.$message.warning('无存储管理权限')
   try {
     await api.setDefault(row.id)
     window.$message.success('已设为默认')
@@ -230,6 +238,8 @@ async function setDefault(row) {
 }
 
 async function testConnection(row) {
+  if (!canManageStorage.value)
+    return window.$message.warning('无存储管理权限')
   try {
     const { data } = await api.test(row.id)
     window.$message.success(`连接成功，耗时 ${data?.elapsedMs ?? 0} ms`)
@@ -275,6 +285,8 @@ const columns = [
     key: 'actions',
     width: 320,
     render(row) {
+      if (!canManageStorage.value)
+        return null
       return h(NSpace, { size: 'small' }, {
         default: () => [
           h(NButton, { size: 'tiny', type: 'primary', secondary: true, onClick: () => testConnection(row) }, { default: () => '测试' }),

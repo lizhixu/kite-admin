@@ -225,8 +225,8 @@ onMounted(async () => {
   }
 
   try {
-    const { data } = await request.get('/loginlog/list', {
-      params: { username: userStore.username, pageNo: 1, pageSize: 2 },
+    const { data } = await request.get('/loginlog/mine', {
+      params: { pageNo: 1, pageSize: 2 },
     })
     const logs = data?.pageData || []
     loginCount.value = data?.total || 0

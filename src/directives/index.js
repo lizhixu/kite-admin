@@ -7,13 +7,11 @@
  **********************************/
 
 import { withDirectives } from 'vue'
-import { router } from '@/router'
+import { hasPermissionCode } from '@/utils/permission'
 
 const permission = {
   mounted(el, binding) {
-    const currentRoute = unref(router.currentRoute)
-    const btns = currentRoute.meta?.btns?.map(item => item.code) || []
-    if (!btns.includes(binding.value)) {
+    if (!hasPermissionCode(binding.value)) {
       el.remove()
     }
   },

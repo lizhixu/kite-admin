@@ -21,10 +21,10 @@
           :disabled="!!opts.configId"
         />
         <NRadioGroup v-model:value="activeTab" size="small">
-          <NRadioButton value="exist">
+          <NRadioButton v-if="canListMedia" value="exist">
             <i class="i-fe:image mr-4 text-12" /> 选择已有
           </NRadioButton>
-          <NRadioButton v-if="opts.uploadable !== false" value="upload">
+          <NRadioButton v-if="opts.uploadable !== false && canUploadMedia" value="upload">
             <i class="i-fe:upload mr-4 text-12" /> 上传新增
           </NRadioButton>
         </NRadioGroup>
@@ -136,6 +136,7 @@ import {
   NUpload,
   NUploadDragger,
 } from 'naive-ui'
+import { hasPermissionCode } from '@/utils/permission'
 import api from '@/views/media/library/api'
 import FolderTree from '@/views/media/library/components/FolderTree.vue'
 import MediaGrid from '@/views/media/library/components/MediaGrid.vue'
@@ -164,6 +165,9 @@ const multiple = computed(() => !!opts.value.multiple)
 const max = computed(() => opts.value.max || 0)
 const acceptPrefix = computed(() => opts.value.accept || '')
 const title = computed(() => opts.value.title || '选择媒体')
+const canListMedia = computed(() => hasPermissionCode('MediaList'))
+const canUploadMedia = computed(() => hasPermissionCode('UploadMedia'))
+const canManageFolder = computed(() => hasPermissionCode('ManageFolder'))
 
 const acceptAttr = computed(() => {
   const a = acceptPrefix.value
@@ -197,6 +201,18 @@ async function loadConfigs() {
 async function resolveFolderPath(configId, folderPath) {
   if (!folderPath || !configId) return 0
   try {
+    const { data } = await api.resolveFolder(configId, folderPath, false)
+    return data?.id || 0
+  }
+  catch (err) {
+    if (!canManageFolder.value) {
+      window.$message.warning('目标文件夹不存在，且当前角色无权创建文件夹')
+      console.error('resolve folder path failed:', err)
+      return 0
+    }
+  }
+
+  try {
     const { data } = await api.resolveFolder(configId, folderPath, true)
     return data?.id || 0
   }
@@ -225,7 +241,14 @@ async function open(userOpts = {}) {
   // 重置状态
   checkedIds.value = []
   uploadedItems.value = []
-  activeTab.value = 'exist'
+  if (canListMedia.value)
+    activeTab.value = 'exist'
+  else if (opts.value.uploadable !== false && canUploadMedia.value)
+    activeTab.value = 'upload'
+  else {
+    window.$message.warning('当前角色无媒体选择或上传权限')
+    return []
+  }
   filters.filename = ''
   filters.mimePrefix = null
   folderPathLabel.value = ''
