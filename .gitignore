@@ -4,3 +4,4 @@ dist
 stats.html
 
 .env
+tmp
