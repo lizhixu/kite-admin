@@ -1,4 +1,5 @@
 export * from './useAliveData'
+export * from './useBizUploadSpecs'
 export * from './useCrud'
 export * from './useForm'
 export * from './useModal'

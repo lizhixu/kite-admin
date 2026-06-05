@@ -1,74 +1,58 @@
 <template>
   <CommonPage>
-    <!-- 顶部统计 -->
-    <NGrid :cols="6" :x-gap="12" :y-gap="12" responsive="screen" class="mb-16">
-      <NGridItem :span="1">
-        <NCard size="small" hoverable>
-          <NStatistic label="队列总数" :value="stats.total || 0" />
-        </NCard>
-      </NGridItem>
-      <NGridItem :span="1">
-        <NCard size="small" hoverable>
-          <NStatistic label="运行中">
-            <span class="text-success">{{ stats.running || 0 }}</span>
-          </NStatistic>
-        </NCard>
-      </NGridItem>
-      <NGridItem :span="1">
-        <NCard size="small" hoverable>
-          <NStatistic label="已暂停">
-            <span style="color: #999">{{ stats.paused || 0 }}</span>
-          </NStatistic>
-        </NCard>
-      </NGridItem>
-      <NGridItem :span="1">
-        <NCard size="small" hoverable>
-          <NStatistic label="待执行">
-            <span class="text-warning">{{ stats.jobPending || 0 }}</span>
-          </NStatistic>
-        </NCard>
-      </NGridItem>
-      <NGridItem :span="1">
-        <NCard size="small" hoverable>
-          <NStatistic label="今日成功">
-            <span class="text-success">{{ stats.successToday || 0 }}</span>
-          </NStatistic>
-        </NCard>
-      </NGridItem>
-      <NGridItem :span="1">
-        <NCard size="small" hoverable>
-          <NStatistic label="今日失败">
-            <span class="text-error">{{ stats.failedToday || 0 }}</span>
-          </NStatistic>
-        </NCard>
-      </NGridItem>
-    </NGrid>
+    <div class="h-full flex flex-col overflow-hidden">
+      <!-- 顶部统计 -->
+      <NCard size="small" class="mb-16 flex-shrink-0">
+        <NSpace align="center" :size="16" :wrap="true">
+          <NTag size="small" :bordered="false">
+            总 {{ stats.total || 0 }}
+          </NTag>
+          <NTag size="small" type="success" :bordered="false">
+            运行 {{ stats.running || 0 }}
+          </NTag>
+          <NTag size="small" :bordered="false">
+            暂停 {{ stats.paused || 0 }}
+          </NTag>
+          <NTag size="small" type="warning" :bordered="false">
+            待执行 {{ stats.jobPending || 0 }}
+          </NTag>
+          <NTag size="small" type="success" :bordered="false">
+            今日成功 {{ stats.successToday || 0 }}
+          </NTag>
+          <NTag size="small" type="error" :bordered="false">
+            今日失败 {{ stats.failedToday || 0 }}
+          </NTag>
+        </NSpace>
+      </NCard>
 
-    <MeCrud
-      ref="$table"
-      v-model:query-items="queryItems"
-      :scroll-x="1200"
-      :columns="columns"
-      :get-data="api.read"
-      @on-data-change="loadStats"
-    >
-      <MeQueryItem label="名称" :label-width="50">
-        <n-input
-          v-model:value="queryItems.name"
-          type="text"
-          placeholder="请输入队列名"
-          clearable
-        />
-      </MeQueryItem>
-      <MeQueryItem label="状态" :label-width="50">
-        <n-select
-          v-model:value="queryItems.status"
-          clearable
-          :options="statusOptions"
-          style="width: 140px"
-        />
-      </MeQueryItem>
-    </MeCrud>
+      <div class="min-h-0 flex-1">
+        <MeCrud
+          ref="$table"
+          v-model:query-items="queryItems"
+          :scroll-x="1200"
+          :columns="columns"
+          :get-data="api.read"
+          @on-data-change="loadStats"
+        >
+          <MeQueryItem label="名称" :label-width="50">
+            <n-input
+              v-model:value="queryItems.name"
+              type="text"
+              placeholder="请输入队列名"
+              clearable
+            />
+          </MeQueryItem>
+          <MeQueryItem label="状态" :label-width="50">
+            <n-select
+              v-model:value="queryItems.status"
+              clearable
+              :options="statusOptions"
+              style="width: 140px"
+            />
+          </MeQueryItem>
+        </MeCrud>
+      </div>
+    </div>
 
     <!-- 编辑弹窗 -->
     <MeModal ref="modalRef" width="560px">
@@ -141,7 +125,6 @@ import {
   NGridItem,
   NInputNumber,
   NSpace,
-  NStatistic,
   NSwitch,
   NTag,
 } from 'naive-ui'

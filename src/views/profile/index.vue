@@ -10,12 +10,12 @@
   <AppPage show-footer>
     <n-card>
       <n-space align="center">
-        <n-avatar
-          round
+        <BizUploader
+          v-model:value="avatarUrl"
+          mode="avatar"
+          biz-type="avatar"
           :size="100"
-          :src="userStore.avatar"
-          class="cursor-pointer transition hover:op-80"
-          @click="handleChangeAvatar"
+          @success="handleAvatarUploaded"
         />
         <div class="ml-20">
           <div class="flex items-center text-16">
@@ -26,14 +26,8 @@
               修改密码
             </n-button>
           </div>
-          <div class="mt-16 flex items-center">
-            <n-button type="primary" ghost :loading="avatarSaving" @click="handleChangeAvatar">
-              <i class="i-fe:image mr-4" />
-              更改头像
-            </n-button>
-            <span class="ml-12 opacity-60">
-              从媒体库选择或直接上传新图片
-            </span>
+          <div class="mt-16 text-12 opacity-60">
+            悬浮头像点击更换；自动按白名单校验大小与类型
           </div>
         </div>
       </n-space>
@@ -108,7 +102,8 @@
 </template>
 
 <script setup>
-import { MeModal } from '@/components'
+import { BizUploader, MeModal } from '@/components'
+import { mediaAccessUrl } from '@/views/media/library/url'
 import { useForm, useModal } from '@/composables'
 import { useUserStore } from '@/store'
 import { getUserInfo } from '@/store/helper'
@@ -131,25 +126,19 @@ async function handlePwdSave() {
   refreshUserInfo()
 }
 
-const avatarSaving = ref(false)
-async function handleChangeAvatar() {
-  const items = await window.$picker.open({
-    accept: 'image/',
-    multiple: false,
-    title: '选择头像',
-    folderPath: 'avatars',
-  })
-  const media = items?.[0]
-  if (!media?.url)
-    return
-  avatarSaving.value = true
+const avatarUrl = ref(userStore.avatar || '')
+watch(() => userStore.avatar, v => (avatarUrl.value = v || ''))
+
+async function handleAvatarUploaded(media) {
+  const accessUrl = mediaAccessUrl(media)
+  if (!accessUrl) return
   try {
-    await api.updateProfile({ id: userStore.userId, avatar: media.url })
+    await api.updateProfile({ id: userStore.userId, avatar: accessUrl })
     $message.success('头像修改成功')
     refreshUserInfo()
   }
-  finally {
-    avatarSaving.value = false
+  catch (err) {
+    $message.error(err?.response?.data?.message || '头像保存失败')
   }
 }
 

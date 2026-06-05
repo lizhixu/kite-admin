@@ -17,60 +17,50 @@
       </NSpace>
     </template>
 
-    <!-- 顶部统计 -->
-    <NGrid :cols="6" :x-gap="12" :y-gap="12" responsive="screen" class="mb-16">
-      <NGridItem :span="1">
-        <NCard size="small" hoverable><NStatistic label="任务总数" :value="stats.total || 0" /></NCard>
-      </NGridItem>
-      <NGridItem :span="1">
-        <NCard size="small" hoverable>
-          <NStatistic label="启用中">
-            <span class="text-success">{{ stats.enabled || 0 }}</span>
-          </NStatistic>
-        </NCard>
-      </NGridItem>
-      <NGridItem :span="1">
-        <NCard size="small" hoverable>
-          <NStatistic label="已停用">
-            <span style="color: #999">{{ stats.disabled || 0 }}</span>
-          </NStatistic>
-        </NCard>
-      </NGridItem>
-      <NGridItem :span="1">
-        <NCard size="small" hoverable><NStatistic label="今日执行" :value="stats.totalToday || 0" /></NCard>
-      </NGridItem>
-      <NGridItem :span="1">
-        <NCard size="small" hoverable>
-          <NStatistic label="今日成功">
-            <span class="text-success">{{ stats.successToday || 0 }}</span>
-          </NStatistic>
-        </NCard>
-      </NGridItem>
-      <NGridItem :span="1">
-        <NCard size="small" hoverable>
-          <NStatistic label="今日失败/超时">
-            <span class="text-error">{{ (stats.failedToday || 0) + (stats.timeoutToday || 0) }}</span>
-          </NStatistic>
-        </NCard>
-      </NGridItem>
-    </NGrid>
+    <div class="h-full flex flex-col overflow-hidden">
+      <!-- 顶部统计 -->
+      <NCard size="small" class="mb-16 flex-shrink-0">
+        <NSpace align="center" :size="16" :wrap="true">
+          <NTag size="small" :bordered="false">
+            总 {{ stats.total || 0 }}
+          </NTag>
+          <NTag size="small" type="success" :bordered="false">
+            启用 {{ stats.enabled || 0 }}
+          </NTag>
+          <NTag size="small" :bordered="false">
+            停用 {{ stats.disabled || 0 }}
+          </NTag>
+          <NTag size="small" type="info" :bordered="false">
+            今日执行 {{ stats.totalToday || 0 }}
+          </NTag>
+          <NTag size="small" type="success" :bordered="false">
+            今日成功 {{ stats.successToday || 0 }}
+          </NTag>
+          <NTag size="small" type="error" :bordered="false">
+            今日失败/超时 {{ (stats.failedToday || 0) + (stats.timeoutToday || 0) }}
+          </NTag>
+        </NSpace>
+      </NCard>
 
-    <MeCrud
-      ref="$table"
-      v-model:query-items="queryItems"
-      :scroll-x="1700"
-      :columns="columns"
-      :get-data="api.read"
-      @on-checked="onChecked"
-      @on-data-change="loadStats"
-    >
-      <MeQueryItem label="任务名" :label-width="50">
-        <n-input v-model:value="queryItems.name" type="text" placeholder="请输入任务名" clearable />
-      </MeQueryItem>
-      <MeQueryItem label="类型" :label-width="50">
-        <n-select v-model:value="queryItems.type" clearable :options="typeOptions" style="width: 140px" />
-      </MeQueryItem>
-    </MeCrud>
+      <div class="min-h-0 flex-1">
+        <MeCrud
+          ref="$table"
+          v-model:query-items="queryItems"
+          :scroll-x="1700"
+          :columns="columns"
+          :get-data="api.read"
+          @on-checked="onChecked"
+          @on-data-change="loadStats"
+        >
+          <MeQueryItem label="任务名" :label-width="50">
+            <n-input v-model:value="queryItems.name" type="text" placeholder="请输入任务名" clearable />
+          </MeQueryItem>
+          <MeQueryItem label="类型" :label-width="50">
+            <n-select v-model:value="queryItems.type" clearable :options="typeOptions" style="width: 140px" />
+          </MeQueryItem>
+        </MeCrud>
+      </div>
+    </div>
 
     <!-- 新增/编辑 -->
     <MeModal ref="modalRef" width="720px">
@@ -438,7 +428,6 @@ import {
   NInputNumber,
   NModal,
   NSpace,
-  NStatistic,
   NSwitch,
   NTabPane,
   NTabs,

@@ -140,6 +140,7 @@ import { hasPermissionCode } from '@/utils/permission'
 import api from '@/views/media/library/api'
 import FolderTree from '@/views/media/library/components/FolderTree.vue'
 import MediaGrid from '@/views/media/library/components/MediaGrid.vue'
+import { normalizeMediaItem } from '@/views/media/library/url'
 
 const props = defineProps({
   opts: { type: Object, default: () => ({}) },
@@ -318,7 +319,7 @@ watch(currentFolderId, async (newId) => {
 
 function onPickSingle(item) {
   if (!multiple.value) {
-    emitResolve([item])
+    emitResolve([normalizeMediaItem(item)])
     visible.value = false
   }
 }
@@ -329,7 +330,7 @@ async function onUpload({ file, onFinish, onError }) {
       configId: currentConfigId.value,
       folderId: currentFolderId.value || undefined,
     })
-    const media = res?.data
+    const media = normalizeMediaItem(res?.data)
     if (media) {
       uploadedItems.value.push(media)
       if (multiple.value) {
@@ -355,9 +356,9 @@ function confirm() {
   const fromGrid = gridRef.value?.getCheckedItems?.() || []
   const map = new Map()
   for (const it of fromGrid)
-    map.set(it.id, it)
+    map.set(it.id, normalizeMediaItem(it))
   for (const it of uploadedItems.value)
-    map.set(it.id, it)
+    map.set(it.id, normalizeMediaItem(it))
   const result = checkedIds.value.map(id => map.get(id)).filter(Boolean)
   emitResolve(result)
   visible.value = false

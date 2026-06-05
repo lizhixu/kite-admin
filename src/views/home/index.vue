@@ -14,17 +14,23 @@
 
           <div class="hero-meta">
             <div class="meta-item">
-              <i class="i-fe:user-check meta-icon" />
+              <i class="meta-icon i-fe:user-check" />
               <div>
-                <div class="meta-label">当前角色</div>
-                <div class="meta-value">{{ userStore.currentRole?.name ?? '未分配' }}</div>
+                <div class="meta-label">
+                  当前角色
+                </div>
+                <div class="meta-value">
+                  {{ userStore.currentRole?.name ?? '未分配' }}
+                </div>
               </div>
             </div>
             <n-divider vertical style="height: 36px" />
             <div class="meta-item">
-              <i class="i-fe:clock meta-icon" />
+              <i class="meta-icon i-fe:clock" />
               <div>
-                <div class="meta-label">上次登录</div>
+                <div class="meta-label">
+                  上次登录
+                </div>
                 <div class="meta-value">
                   {{ lastLogin ? formatTime(lastLogin.createTime) : '首次登录' }}
                   <n-text v-if="lastLogin?.ip" depth="3" style="font-size: 12px; margin-left: 6px">
@@ -35,15 +41,19 @@
             </div>
             <n-divider vertical style="height: 36px" />
             <div class="meta-item">
-              <i class="i-fe:log-in meta-icon" />
+              <i class="meta-icon i-fe:log-in" />
               <div>
-                <div class="meta-label">登录次数</div>
-                <div class="meta-value">{{ loginCount }} 次</div>
+                <div class="meta-label">
+                  登录次数
+                </div>
+                <div class="meta-value">
+                  {{ loginCount }} 次
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <img :src="welcomeImg" class="hero-img" alt="welcome" />
+        <img :src="welcomeImg" class="hero-img" alt="welcome">
       </div>
     </n-card>
 
@@ -53,7 +63,9 @@
         <n-card title="最近消息" size="small" class="msg-card">
           <template #header-extra>
             <n-button text type="primary" @click="notificationStore.showInbox = true">
-              <template #icon><i class="i-fe:chevron-right" /></template>
+              <template #icon>
+                <i class="i-fe:chevron-right" />
+              </template>
             </n-button>
           </template>
           <div v-if="notificationStore.recentMessages.length" class="msg-list">
@@ -66,8 +78,12 @@
               <n-badge :dot="!msg.isRead" :type="msg.isRead ? 'default' : 'error'">
                 <span />
               </n-badge>
-              <n-text class="msg-title" :depth="msg.isRead ? 3 : 1">{{ msg.title || '无标题' }}</n-text>
-              <n-text depth="3" class="msg-time">{{ formatTime(msg.createTime) }}</n-text>
+              <n-text class="msg-title" :depth="msg.isRead ? 3 : 1">
+                {{ msg.title || '无标题' }}
+              </n-text>
+              <n-text depth="3" class="msg-time">
+                {{ formatTime(msg.createTime) }}
+              </n-text>
             </div>
           </div>
           <n-empty v-else description="暂无消息" class="py-32" />
@@ -77,7 +93,9 @@
         <n-card title="快捷入口" size="small" class="quick-card">
           <template #header-extra>
             <n-button text type="primary" @click="showConfig = true">
-              <template #icon><i class="i-fe:settings" /></template>
+              <template #icon>
+                <i class="i-fe:settings" />
+              </template>
             </n-button>
           </template>
           <div class="quick-grid">
@@ -97,42 +115,55 @@
     </n-grid>
 
     <!-- 配置弹窗 -->
-    <n-modal v-model:show="showConfig" preset="card" title="配置快捷入口" style="width: 480px">
-      <n-text depth="3" style="display: block; margin-bottom: 12px">
-        选择常用菜单作为快捷入口（最多 {{ MAX_QUICK }} 个）
-      </n-text>
-      <n-checkbox-group v-model:value="tempSelected">
-        <div class="config-list">
-          <n-checkbox
-            v-for="menu in allMenus"
-            :key="menu.code"
-            :value="menu.code"
-            :disabled="!tempSelected.includes(menu.code) && tempSelected.length >= MAX_QUICK"
-            class="config-item"
-          >
-            <i :class="`${menu.icon}?mask`" class="text-14 config-icon" />
-            <span>{{ menu.name }}</span>
-          </n-checkbox>
+    <n-modal v-model:show="showConfig" class="modal-box" style="width: 480px; max-width: 95vw" size="huge" :bordered="false">
+      <n-card closable @close="showConfig = false">
+        <template #header>
+          <header class="modal-header">
+            配置快捷入口
+          </header>
+        </template>
+        <div class="config-form-scroll">
+          <n-text depth="3" style="display: block; margin-bottom: 12px">
+            选择常用菜单作为快捷入口（最多 {{ MAX_QUICK }} 个）
+          </n-text>
+          <n-checkbox-group v-model:value="tempSelected">
+            <div class="config-list">
+              <n-checkbox
+                v-for="menu in allMenus"
+                :key="menu.code"
+                :value="menu.code"
+                :disabled="!tempSelected.includes(menu.code) && tempSelected.length >= MAX_QUICK"
+                class="config-item"
+              >
+                <i :class="`${menu.icon}?mask`" class="config-icon text-14" />
+                <span class="config-name">{{ menu.name }}</span>
+              </n-checkbox>
+            </div>
+          </n-checkbox-group>
         </div>
-      </n-checkbox-group>
-      <template #action>
-        <n-space justify="end">
-          <n-button @click="showConfig = false">取消</n-button>
-          <n-button type="primary" @click="saveConfig">确定</n-button>
-        </n-space>
-      </template>
+        <template #footer>
+          <footer class="config-footer">
+            <n-button @click="showConfig = false">
+              取消
+            </n-button>
+            <n-button type="primary" @click="saveConfig">
+              确定
+            </n-button>
+          </footer>
+        </template>
+      </n-card>
     </n-modal>
   </AppPage>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import 'dayjs/locale/zh-cn'
-import { useUserStore, useNotificationStore, usePermissionStore } from '@/store'
-import { request } from '@/utils'
+import { computed, onMounted, ref, watch } from 'vue'
 import welcomeImg from '@/assets/images/welcome.svg'
+import { useNotificationStore, usePermissionStore, useUserStore } from '@/store'
+import { request } from '@/utils'
+import 'dayjs/locale/zh-cn'
 
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
@@ -152,11 +183,16 @@ const tempSelected = ref([])
 
 const greeting = computed(() => {
   const h = new Date().getHours()
-  if (h < 6) return '夜深了'
-  if (h < 9) return '早上好'
-  if (h < 12) return '上午好'
-  if (h < 14) return '中午好'
-  if (h < 18) return '下午好'
+  if (h < 6)
+    return '夜深了'
+  if (h < 9)
+    return '早上好'
+  if (h < 12)
+    return '上午好'
+  if (h < 14)
+    return '中午好'
+  if (h < 18)
+    return '下午好'
   return '晚上好'
 })
 
@@ -166,7 +202,8 @@ const todayStr = computed(() => dayjs().format('YYYY年MM月DD日 dddd'))
 function collectLeafMenus(perms) {
   const result = []
   for (const p of perms) {
-    if (p.type !== 'MENU') continue
+    if (p.type !== 'MENU')
+      continue
     if (p.path && p.show !== false && p.enable !== false) {
       result.push({ code: p.code, name: p.name, icon: p.icon, path: p.path })
     }
@@ -190,7 +227,8 @@ const quickActions = computed(() =>
 
 /** 打开配置弹窗时，复制当前选中到临时变量 */
 watch(showConfig, (val) => {
-  if (val) tempSelected.value = [...selectedCodes.value]
+  if (val)
+    tempSelected.value = [...selectedCodes.value]
 })
 
 function saveConfig() {
@@ -200,7 +238,8 @@ function saveConfig() {
 }
 
 function formatTime(time) {
-  if (!time) return ''
+  if (!time)
+    return ''
   const d = dayjs(time)
   return d.isBefore(dayjs().subtract(1, 'day')) ? d.format('YYYY-MM-DD HH:mm') : d.fromNow()
 }
@@ -216,11 +255,13 @@ onMounted(async () => {
       if (selectedCodes.value.length !== saved.length) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedCodes.value))
       }
-    } else {
+    }
+    else {
       // 默认选前 6 个有权限的菜单
       selectedCodes.value = allMenus.value.slice(0, MAX_QUICK).map(m => m.code)
     }
-  } catch {
+  }
+  catch {
     selectedCodes.value = allMenus.value.slice(0, MAX_QUICK).map(m => m.code)
   }
 
@@ -231,11 +272,13 @@ onMounted(async () => {
     const logs = data?.pageData || []
     loginCount.value = data?.total || 0
     lastLogin.value = logs.length > 1 ? logs[1] : logs[0] || null
-  } catch { /* ignore */ }
+  }
+  catch { /* ignore */ }
 
   try {
     await notificationStore.fetchInbox({ pageNo: 1, pageSize: 15 })
-  } catch { /* ignore */ }
+  }
+  catch { /* ignore */ }
 })
 
 function openMessage(msg) {
@@ -400,19 +443,55 @@ function openMessage(msg) {
   max-width: 100%;
 }
 
+.config-form-scroll {
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-right: -6px;
+}
+.config-form-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.config-form-scroll::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
+}
 .config-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 8px;
 }
 .config-item {
   display: flex;
   align-items: center;
+  min-width: 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.config-item:hover {
+  background: var(--home-hover-color);
+}
+.config-item :deep(.n-checkbox__label) {
+  display: flex;
+  align-items: center;
+  min-width: 0;
   gap: 8px;
-  padding: 6px 0;
 }
 .config-icon {
+  flex-shrink: 0;
   color: var(--home-icon-color);
+}
+.config-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.config-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
 }
 
 /* Light mode */
@@ -436,10 +515,34 @@ function openMessage(msg) {
 }
 
 @media (max-width: 1280px) {
-  .hero-img { width: 220px; }
+  .hero-img {
+    width: 220px;
+  }
 }
 @media (max-width: 960px) {
-  .hero-img { display: none; }
-  .hero-meta { flex-wrap: wrap; gap: 12px 20px; }
+  .hero-img {
+    display: none;
+  }
+  .hero-meta {
+    flex-wrap: wrap;
+    gap: 12px 20px;
+  }
+}
+@media (max-width: 520px) {
+  .modal-box {
+    width: calc(100vw - 24px) !important;
+  }
+  .config-form-scroll {
+    max-height: calc(100vh - 220px);
+  }
+  .config-list {
+    grid-template-columns: 1fr;
+  }
+  .config-footer {
+    gap: 12px;
+  }
+  .config-footer :deep(.n-button) {
+    flex: 1;
+  }
 }
 </style>

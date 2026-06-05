@@ -1,5 +1,6 @@
 export { default as AppCard } from './AppCard.vue'
 export { default as AppPage } from './AppPage.vue'
+export { default as BizUploader } from './BizUploader.vue'
 export { default as CommonPage } from './CommonPage.vue'
 export { default as JsonViewer } from './JsonViewer.vue'
 export { default as LayoutSetting } from './LayoutSetting.vue'

@@ -43,7 +43,7 @@
               <div class="mb-6 aspect-square flex items-center justify-center overflow-hidden rounded-4 bg-#f5f5f5 dark:bg-#2a2a2a">
                 <NImage
                   v-if="isImage(item)"
-                  :src="item.url"
+                  :src="mediaAccessUrl(item)"
                   object-fit="cover"
                   class="h-full w-full"
                   :img-props="{ style: 'width:100%;height:100%;object-fit:cover' }"
@@ -68,7 +68,7 @@
                 <NButton
                   circle
                   size="tiny"
-                  @click="copyUrl(item.url)"
+                  @click="copyUrl(mediaAccessUrl(item))"
                 >
                   <i class="i-fe:copy text-12" />
                 </NButton>
@@ -108,6 +108,7 @@ import { NButton, NCheckbox, NImage, NImageGroup, NPagination, NScrollbar, NSpin
 import { formatDate } from '@/utils'
 import { humanSize, iconForMime } from '../../utils'
 import api from '../api'
+import { mediaAccessUrl, normalizeMediaItems } from '../url'
 
 const props = defineProps({
   configId: { type: [Number, null], default: null },
@@ -149,7 +150,7 @@ async function fetchList() {
     if (props.acceptPrefix)
       params.mimePrefix = props.acceptPrefix
     const { data } = await api.page(params)
-    items.value = data?.pageData || []
+    items.value = normalizeMediaItems(data?.pageData)
     total.value = data?.total || 0
   }
   catch (err) {
@@ -238,7 +239,7 @@ async function copyUrl(url) {
 }
 
 function openNonImagePreview(item) {
-  window.open(item.url, '_blank')
+  window.open(mediaAccessUrl(item), '_blank')
 }
 
 function onDelete(item) {
