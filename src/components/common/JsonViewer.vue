@@ -7,18 +7,24 @@
         </NTag>
         <span class="json-viewer__meta">{{ sizeLabel }}</span>
         <template v-if="parsed.prefix">
-          <NTag size="tiny" type="info" :bordered="false">前缀</NTag>
+          <NTag size="tiny" type="info" :bordered="false">
+            前缀
+          </NTag>
         </template>
       </NSpace>
       <NSpace size="small">
         <NButton v-if="parsed.kind === 'json'" size="tiny" quaternary @click="toggleExpand">
           {{ expanded ? '全部折叠' : '全部展开' }}
         </NButton>
-        <NButton size="tiny" quaternary @click="copyRaw">复制</NButton>
+        <NButton size="tiny" quaternary @click="copyRaw">
+          复制
+        </NButton>
       </NSpace>
     </div>
 
-    <div v-if="parsed.prefix" class="json-viewer__prefix">{{ parsed.prefix }}</div>
+    <div v-if="parsed.prefix" class="json-viewer__prefix">
+      {{ parsed.prefix }}
+    </div>
 
     <VueJsonPretty
       v-if="parsed.kind === 'json'"
@@ -41,8 +47,8 @@
 import { NButton, NSpace, NTag } from 'naive-ui'
 import { computed, ref } from 'vue'
 import VueJsonPretty from 'vue-json-pretty'
-import 'vue-json-pretty/lib/styles.css'
 import { useAppStore } from '@/store'
+import 'vue-json-pretty/lib/styles.css'
 
 const props = defineProps({
   raw: { type: [String, Object, Array, Number, Boolean, null], default: '' },

@@ -11,7 +11,9 @@
           style="width: 100%; gap: 8px"
         >
           <NButton v-if="view === 'detail'" text @click="view = 'list'">
-            <template #icon><i class="i-fe:arrow-left" /></template>
+            <template #icon>
+              <i class="i-fe:arrow-left" />
+            </template>
           </NButton>
           <span class="flex-1 text-16 font-bold">{{ view === 'detail' ? detailMsg?.title : '我的消息' }}</span>
           <NButton
@@ -56,11 +58,13 @@
                 </NTag>
                 <span class="inbox-time">{{ formatTime(msg.createTime) }}</span>
               </div>
-              <div class="inbox-snippet">{{ truncate(msg.content, 60) }}</div>
+              <div class="inbox-snippet">
+                {{ truncate(msg.content, 60) }}
+              </div>
             </div>
           </div>
 
-          <div v-if="store.inboxTotal > store.inboxPageSize" class="py-12 flex justify-center">
+          <div v-if="store.inboxTotal > store.inboxPageSize" class="flex justify-center py-12">
             <NPagination
               v-model:page="store.inboxPage"
               :page-size="store.inboxPageSize"
@@ -89,6 +93,7 @@ import {
   NSpin,
   NTag,
 } from 'naive-ui'
+import { onBeforeUnmount } from 'vue'
 import { MessageDetail } from '@/components'
 import { useNotificationStore } from '@/store/modules/notification'
 import { stripMarkdown } from '@/utils/markdown'

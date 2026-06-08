@@ -108,8 +108,12 @@
             :value="modalForm.status === 'RUNNING'"
             @update:value="v => (modalForm.status = v ? 'RUNNING' : 'PAUSED')"
           >
-            <template #checked>运行</template>
-            <template #unchecked>暂停</template>
+            <template #checked>
+              运行
+            </template>
+            <template #unchecked>
+              暂停
+            </template>
           </NSwitch>
         </n-form-item>
       </n-form>

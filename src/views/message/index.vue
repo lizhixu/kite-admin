@@ -54,11 +54,17 @@
           <n-select v-model:value="modalForm.type" :options="typeOptions" />
         </n-form-item>
         <n-form-item label="目标" path="targetType">
-          <n-radio-group v-model:value="modalForm.targetType">
-            <n-radio value="ALL">全员广播</n-radio>
-            <n-radio value="ROLE">按角色</n-radio>
-            <n-radio value="USER">指定用户</n-radio>
-          </n-radio-group>
+          <NRadioGroup v-model:value="modalForm.targetType">
+            <NRadio value="ALL">
+              全员广播
+            </NRadio>
+            <NRadio value="ROLE">
+              按角色
+            </NRadio>
+            <NRadio value="USER">
+              指定用户
+            </NRadio>
+          </NRadioGroup>
         </n-form-item>
         <n-form-item v-if="modalForm.targetType === 'ROLE'" label="选择角色" path="roleIds">
           <n-select
@@ -83,32 +89,32 @@
           />
         </n-form-item>
         <n-form-item label="内容" path="content">
-          <n-tabs type="segment" animated>
-            <n-tab-pane name="edit" tab="编辑">
+          <NTabs type="segment" animated>
+            <NTabPane name="edit" tab="编辑">
               <n-input
                 v-model:value="modalForm.content"
                 type="textarea"
                 placeholder="支持 Markdown 格式"
                 :autosize="{ minRows: 10, maxRows: 20 }"
               />
-            </n-tab-pane>
-            <n-tab-pane name="preview" tab="预览">
+            </NTabPane>
+            <NTabPane name="preview" tab="预览">
               <div class="modal-preview" v-html="previewHTML" />
-            </n-tab-pane>
-          </n-tabs>
+            </NTabPane>
+          </NTabs>
         </n-form-item>
       </n-form>
     </MeModal>
 
     <!-- 内容详情抽屉 -->
-    <n-drawer v-model:show="detailVisible" width="640">
-      <n-drawer-content>
+    <NDrawer v-model:show="detailVisible" width="640">
+      <NDrawerContent>
         <template #header>
           <span class="text-16 font-bold">{{ detailRow?.title || '消息详情' }}</span>
         </template>
         <MessageDetail :message="detailRow" show-target />
-      </n-drawer-content>
-    </n-drawer>
+      </NDrawerContent>
+    </NDrawer>
   </CommonPage>
 </template>
 
@@ -124,13 +130,13 @@ import {
   NTabs,
   NTag,
 } from 'naive-ui'
-import 'highlight.js/styles/github.css'
 import { MeCrud, MeModal, MeQueryItem, MessageDetail } from '@/components'
 import { useCrud } from '@/composables'
 import { withPermission } from '@/directives'
 import { renderMarkdown } from '@/utils/markdown'
-import api from './api'
 import userApi from '@/views/pms/user/api'
+import api from './api'
+import 'highlight.js/styles/github.css'
 
 defineOptions({ name: 'MessageList' })
 
@@ -155,7 +161,8 @@ async function fetchRoles() {
   try {
     const { data } = await userApi.getAllRoles()
     roleOptions.value = (data || []).map(r => ({ label: r.name, value: r.id }))
-  } catch { /* ignore */ }
+  }
+  catch { /* ignore */ }
 }
 fetchRoles()
 
@@ -175,13 +182,11 @@ async function searchUsers(query) {
         label: u.profile?.nickName || u.username,
         value: u.id,
       }))
-    } catch { /* ignore */ }
+    }
+    catch { /* ignore */ }
     userLoading.value = false
   }, 300)
 }
-
-// ====== Markdown preview ======
-const previewHTML = computed(() => renderMarkdown(modalForm.value.content || ''))
 
 // ====== CRUD ======
 const {
@@ -206,6 +211,9 @@ const {
   },
 })
 
+// ====== Markdown preview ======
+const previewHTML = computed(() => renderMarkdown(modalForm.value.content || ''))
+
 function handleSend() {
   _handleAdd()
 }
@@ -221,7 +229,8 @@ function handleDelete(rowId) {
         await api.delete(rowId)
         $message.success('删除成功')
         $table.value?.handleSearch(true)
-      } catch { /* ignore */ }
+      }
+      catch { /* ignore */ }
     },
   })
 }
@@ -231,7 +240,8 @@ function onChecked(keys) {
 }
 
 function handleBulkDelete() {
-  if (!checkedIds.value.length) return
+  if (!checkedIds.value.length)
+    return
   $dialog.warning({
     title: '批量删除',
     content: `确定要删除选中的 ${checkedIds.value.length} 条消息吗？`,
@@ -243,7 +253,8 @@ function handleBulkDelete() {
         $message.success('删除成功')
         checkedIds.value = []
         $table.value?.handleSearch(true)
-      } catch { /* ignore */ }
+      }
+      catch { /* ignore */ }
     },
   })
 }
@@ -345,7 +356,8 @@ function typeTagType(type) {
 }
 
 function formatTime(time) {
-  if (!time) return '-'
+  if (!time)
+    return '-'
   const d = new Date(time)
   const pad = n => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`

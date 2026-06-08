@@ -38,8 +38,8 @@
     </MeCrud>
     <MeModal
       ref="modalRef"
-      width="min(960px, calc(100vw - 48px))"
-      :content-style="{ maxHeight: 'calc(100vh - 80px)' }"
+      width="min(1080px, calc(100vw - 32px))"
+      :content-style="{ maxHeight: 'calc(100vh - 8px)' }"
     >
       <n-form
         ref="modalFormRef"
@@ -48,6 +48,7 @@
         :label-width="80"
         :model="modalForm"
         class="role-form-scroll"
+        :class="{ 'is-permission-pinned': isPermissionPinned }"
       >
         <n-form-item
           label="角色名"
@@ -71,7 +72,7 @@
         >
           <n-input v-model:value="modalForm.code" :disabled="modalAction !== 'add'" />
         </n-form-item>
-        <n-form-item label="权限" path="permissionIds">
+        <n-form-item ref="permissionFormItemRef" label="权限" path="permissionIds" class="permission-form-item">
           <div class="permission-panel w-full">
             <div class="permission-panel__header">
               <div>
@@ -87,6 +88,37 @@
                 <span>菜单 <b>{{ selectedMenuCount }}</b></span>
                 <span>按钮 <b>{{ selectedButtonCount }}</b></span>
               </div>
+              <NButton
+                size="tiny"
+                secondary
+                type="primary"
+                class="permission-pin-btn"
+                :title="isPermissionPinned ? '取消固定' : '固定'"
+                @click="handleTogglePermissionPinned"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path v-if="isPermissionPinned" d="M5 5l14 14" />
+                  <template v-if="isPermissionPinned">
+                    <path d="M12 17v5" />
+                    <path d="M9 22h6" />
+                    <path d="M14 4l4 4-2.5 2.5" />
+                    <path d="M10.5 13.5 8 16l-4-4 2.5-2.5" />
+                  </template>
+                  <template v-else>
+                    <path d="M12 17v5" />
+                    <path d="M9 22h6" />
+                    <path d="M17 4l3 3-5 5v3l-2 2-6-6 2-2h3z" />
+                  </template>
+                </svg>
+              </NButton>
             </div>
 
             <div class="permission-toolbar">
@@ -111,39 +143,39 @@
                   placeholder="从已有角色复制权限"
                   class="permission-copy__select"
                 />
-                <n-button
+                <NButton
                   secondary
                   type="primary"
                   :disabled="!copyRoleId"
                   @click="handleCopyRolePermissions"
                 >
                   复制
-                </n-button>
+                </NButton>
               </div>
             </div>
 
             <div class="permission-actions">
               <n-space :size="8">
-                <n-button size="small" secondary @click="handleCheckAllPermissions">
+                <NButton size="small" secondary @click="handleCheckAllPermissions">
                   全选
-                </n-button>
-                <n-button size="small" secondary @click="handleClearPermissions">
+                </NButton>
+                <NButton size="small" secondary @click="handleClearPermissions">
                   清空
-                </n-button>
-                <n-button size="small" secondary @click="handleExpandAllPermissions">
+                </NButton>
+                <NButton size="small" secondary @click="handleExpandAllPermissions">
                   展开全部
-                </n-button>
-                <n-button size="small" secondary @click="handleCollapseAllPermissions">
+                </NButton>
+                <NButton size="small" secondary @click="handleCollapseAllPermissions">
                   收起全部
-                </n-button>
-                <n-button
+                </NButton>
+                <NButton
                   size="small"
                   secondary
                   :disabled="!matchedPermissionIds.length"
                   @click="handleCheckMatchedPermissions"
                 >
                   勾选搜索结果
-                </n-button>
+                </NButton>
               </n-space>
               <span v-if="permissionSearch" class="permission-match-tip">
                 匹配 {{ matchedPermissionIds.length }} 项
@@ -319,6 +351,8 @@ const permissionExpandedKeys = ref([])
 const copyRoleId = ref(null)
 const copyRoleOptions = ref([])
 const copyRolesLoading = ref(false)
+const isPermissionPinned = ref(false)
+const permissionFormItemRef = ref(null)
 
 const flatPermissions = computed(() => flattenPermissions(permissionTree.value))
 const allPermissionIds = computed(() => flatPermissions.value.map(item => item.id))
@@ -393,7 +427,26 @@ function normalizePageRows(data) {
 function resetPermissionAssignState() {
   permissionSearch.value = ''
   copyRoleId.value = null
+  isPermissionPinned.value = false
   permissionExpandedKeys.value = [...allPermissionIds.value]
+}
+
+function getElement(target) {
+  return target?.$el || target
+}
+
+async function handleTogglePermissionPinned() {
+  if (isPermissionPinned.value) {
+    isPermissionPinned.value = false
+    return
+  }
+
+  const formEl = getElement(modalFormRef.value)
+  const permissionItemEl = getElement(permissionFormItemRef.value)
+  if (formEl && permissionItemEl)
+    formEl.scrollTop = Math.max(permissionItemEl.offsetTop - 85, 0)
+  await nextTick()
+  isPermissionPinned.value = true
 }
 
 async function ensureCopyRoleOptionsLoaded() {
@@ -513,13 +566,33 @@ function handleCopyRolePermissions() {
 
 <style scoped>
 .role-form-scroll {
-  max-height: calc(100vh - 280px);
+  --role-modal-body-height: min(700px, calc(100vh - 180px));
+  --permission-pin-top-gap: 96px;
+
+  height: var(--role-modal-body-height);
+  max-height: var(--role-modal-body-height);
   overflow-y: auto;
   padding-right: 6px;
   margin-right: -6px;
 }
 
+.role-form-scroll.is-permission-pinned {
+  overflow-y: hidden;
+}
+
+.permission-form-item {
+  height: var(--role-modal-body-height);
+}
+
+.permission-form-item :deep(.n-form-item-blank) {
+  height: 100%;
+  min-height: 0;
+}
+
 .permission-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #fff;
@@ -527,11 +600,12 @@ function handleCopyRolePermissions() {
 }
 
 .permission-panel__header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 16px;
+  padding: 10px 48px 10px 14px;
   background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
   border-bottom: 1px solid #f0f0f0;
 }
@@ -543,8 +617,9 @@ function handleCopyRolePermissions() {
 }
 
 .permission-panel__desc {
-  margin-top: 4px;
+  margin-top: 2px;
   font-size: 12px;
+  line-height: 16px;
   color: #888;
 }
 
@@ -555,6 +630,21 @@ function handleCopyRolePermissions() {
   flex-shrink: 0;
   font-size: 12px;
   color: #666;
+}
+
+.permission-pin-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  z-index: 2;
+  width: 26px;
+  min-width: 26px;
+  padding: 0;
+}
+
+.permission-pin-btn svg {
+  width: 14px;
+  height: 14px;
 }
 
 .permission-summary span {
@@ -603,8 +693,8 @@ function handleCopyRolePermissions() {
 }
 
 .role-permission-tree {
-  min-height: 280px;
-  max-height: 420px;
+  flex: 1;
+  min-height: 0;
   padding: 8px 12px 12px;
   overflow: auto;
   border-top: 1px solid #f0f0f0;

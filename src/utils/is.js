@@ -8,6 +8,8 @@
  **********************************/
 
 const toString = Object.prototype.toString
+const URL_RE = /^https?:\/\/[-\w+&@#/%?=~|!:,.;]+[-\w+&@#/%=~|]$/
+const EXTERNAL_RE = /^https?:|mailto:|tel:/
 
 export function is(val, type) {
   return toString.call(val) === `[object ${type}]`
@@ -110,8 +112,7 @@ export function ifNull(val, def = '') {
 }
 
 export function isUrl(path) {
-  const reg = /^https?:\/\/[-\w+&@#/%?=~|!:,.;]+[-\w+&@#/%=~|]$/
-  return reg.test(path)
+  return URL_RE.test(path)
 }
 
 /**
@@ -119,7 +120,7 @@ export function isUrl(path) {
  * @returns {boolean} 是否是外部链接
  */
 export function isExternal(path) {
-  return /^https?:|mailto:|tel:/.test(path)
+  return EXTERNAL_RE.test(path)
 }
 
 export const isServer = typeof window === 'undefined'

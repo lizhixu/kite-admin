@@ -85,7 +85,7 @@
           </template>
 
           <template v-else>
-            <div class="picker-upload min-h-0 flex flex-1 flex-col">
+            <div class="picker-upload min-h-0 flex flex-col flex-1">
               <NUpload
                 :show-file-list="true"
                 :custom-request="onUpload"
@@ -172,8 +172,10 @@ const canManageFolder = computed(() => hasPermissionCode('ManageFolder'))
 
 const acceptAttr = computed(() => {
   const a = acceptPrefix.value
-  if (!a) return undefined
-  if (a.endsWith('/')) return `${a}*`
+  if (!a)
+    return undefined
+  if (a.endsWith('/'))
+    return `${a}*`
   return a
 })
 
@@ -200,7 +202,8 @@ async function loadConfigs() {
 
 // 根据 folderPath 解析（或自动创建）文件夹，返回 folderId
 async function resolveFolderPath(configId, folderPath) {
-  if (!folderPath || !configId) return 0
+  if (!folderPath || !configId)
+    return 0
   try {
     const { data } = await api.resolveFolder(configId, folderPath, false)
     return data?.id || 0
@@ -225,7 +228,8 @@ async function resolveFolderPath(configId, folderPath) {
 
 // 获取文件夹的完整路径标签
 function getFolderPathLabel(folders, folderId) {
-  if (!folderId) return '/'
+  if (!folderId)
+    return '/'
   const map = new Map(folders.map(f => [f.id, f]))
   const parts = []
   let cur = map.get(folderId)
@@ -233,7 +237,7 @@ function getFolderPathLabel(folders, folderId) {
     parts.unshift(cur.name)
     cur = cur.parentId ? map.get(cur.parentId) : null
   }
-  return '/' + parts.join('/')
+  return `/${parts.join('/')}`
 }
 
 let _resolveFn = null
@@ -242,10 +246,12 @@ async function open(userOpts = {}) {
   // 重置状态
   checkedIds.value = []
   uploadedItems.value = []
-  if (canListMedia.value)
+  if (canListMedia.value) {
     activeTab.value = 'exist'
-  else if (opts.value.uploadable !== false && canUploadMedia.value)
+  }
+  else if (opts.value.uploadable !== false && canUploadMedia.value) {
     activeTab.value = 'upload'
+  }
   else {
     window.$message.warning('当前角色无媒体选择或上传权限')
     return []
@@ -308,7 +314,8 @@ watch(currentFolderId, async (newId) => {
     return
   }
   // 如果已有 folderPath 且 folderId 没变，不重新计算
-  if (opts.value.folderPath && newId === currentFolderId.value) return
+  if (opts.value.folderPath && newId === currentFolderId.value)
+    return
   // 实时更新路径标签
   try {
     const { data = [] } = await api.listFolders(currentConfigId.value)
@@ -352,7 +359,8 @@ async function onUpload({ file, onFinish, onError }) {
 }
 
 function confirm() {
-  if (!checkedIds.value.length) return
+  if (!checkedIds.value.length)
+    return
   const fromGrid = gridRef.value?.getCheckedItems?.() || []
   const map = new Map()
   for (const it of fromGrid)

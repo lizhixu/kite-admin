@@ -1,24 +1,24 @@
 <template>
   <div v-if="message" class="message-detail">
-    <n-descriptions :column="column" label-placement="left" bordered size="small">
-      <n-descriptions-item label="类型">
-        <n-tag :type="typeTagType(message.type)" size="small" :bordered="false">
+    <NDescriptions :column="column" label-placement="left" bordered size="small">
+      <NDescriptionsItem label="类型">
+        <NTag :type="typeTagType(message.type)" size="small" :bordered="false">
           {{ typeLabel(message.type) }}
-        </n-tag>
-      </n-descriptions-item>
-      <n-descriptions-item v-if="showTarget" label="目标">
-        <n-tag :type="targetTagType" size="small" :bordered="false">
+        </NTag>
+      </NDescriptionsItem>
+      <NDescriptionsItem v-if="showTarget" label="目标">
+        <NTag :type="targetTagType" size="small" :bordered="false">
           {{ targetLabel }}
-        </n-tag>
-      </n-descriptions-item>
-      <n-descriptions-item label="发送人">
+        </NTag>
+      </NDescriptionsItem>
+      <NDescriptionsItem label="发送人">
         {{ message.senderName }}
-      </n-descriptions-item>
-      <n-descriptions-item label="发送时间">
+      </NDescriptionsItem>
+      <NDescriptionsItem label="发送时间">
         {{ formatTime(message.createTime) }}
-      </n-descriptions-item>
-    </n-descriptions>
-    <n-divider style="margin: 0" />
+      </NDescriptionsItem>
+    </NDescriptions>
+    <NDivider style="margin: 0" />
     <div class="content" v-html="renderedContent" />
   </div>
 </template>
@@ -56,7 +56,8 @@ function typeTagType(type) {
 }
 
 function formatTime(time) {
-  if (!time) return '-'
+  if (!time)
+    return '-'
   const d = new Date(time)
   const pad = n => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`

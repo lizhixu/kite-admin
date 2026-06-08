@@ -9,10 +9,20 @@
 <template>
   <CommonPage>
     <template #action>
-      <NButton v-permission="'AddUser'" type="primary" @click="handleAdd()">
-        <i class="i-material-symbols:add mr-4 text-18" />
-        创建新用户
-      </NButton>
+      <NSpace :size="12" align="center">
+        <NButton v-permission="'ImportUser'" secondary @click="showImportModal = true">
+          <i class="i-fe:upload mr-4 text-18" />
+          导入
+        </NButton>
+        <NButton v-permission="'ExportUser'" secondary :loading="exportLoading" @click="handleExport">
+          <i class="i-fe:download mr-4 text-18" />
+          导出
+        </NButton>
+        <NButton v-permission="'AddUser'" type="primary" @click="handleAdd()">
+          <i class="i-material-symbols:add mr-4 text-18" />
+          创建新用户
+        </NButton>
+      </NSpace>
     </template>
 
     <MeCrud
@@ -80,6 +90,20 @@
           <n-input v-model:value="modalForm.password" type="password" show-password-on="mousedown" />
         </n-form-item>
 
+        <n-form-item
+          v-if="modalAction === 'add'"
+          label="邮箱"
+          path="email"
+          :rule="{
+            required: true,
+            type: 'email',
+            message: '请输入正确的邮箱',
+            trigger: ['input', 'blur'],
+          }"
+        >
+          <n-input v-model:value="modalForm.email" placeholder="请输入邮箱" />
+        </n-form-item>
+
         <n-form-item v-if="['add', 'setRole'].includes(modalAction)" label="角色" path="roleIds">
           <n-select
             v-model:value="modalForm.roleIds"
@@ -106,11 +130,62 @@
         详细信息需由用户本人补充修改
       </n-alert>
     </MeModal>
+
+    <n-modal v-model:show="showImportModal" preset="card" title="导入用户" class="max-w-560px">
+      <n-upload
+        accept=".xlsx"
+        :max="1"
+        :default-upload="false"
+        :disabled="importLoading"
+        @change="handleImportFileChange"
+      >
+        <n-upload-dragger>
+          <div class="mb-12 text-32">
+            <i class="i-fe:upload-cloud" />
+          </div>
+          <n-text class="text-15">
+            点击或拖拽 XLSX 文件到此处
+          </n-text>
+        </n-upload-dragger>
+      </n-upload>
+
+      <n-alert class="mt-16" type="info" :bordered="false">
+        模板字段：用户名、密码、邮箱、角色编码、启用。多个角色编码用逗号分隔。
+      </n-alert>
+
+      <n-result
+        v-if="importResult"
+        class="mt-16"
+        :status="importResult.failed ? 'warning' : 'success'"
+        :title="`成功 ${importResult.success} 条，失败 ${importResult.failed} 条`"
+      >
+        <template #footer>
+          <n-data-table
+            v-if="importResult.failures?.length"
+            size="small"
+            :columns="importFailureColumns"
+            :data="importResult.failures"
+            :pagination="{ pageSize: 5 }"
+          />
+        </template>
+      </n-result>
+
+      <template #footer>
+        <div class="flex justify-end gap-12">
+          <NButton :loading="templateLoading" @click="handleDownloadTemplate">
+            下载模板
+          </NButton>
+          <NButton @click="showImportModal = false">
+            关闭
+          </NButton>
+        </div>
+      </template>
+    </n-modal>
   </CommonPage>
 </template>
 
 <script setup>
-import { NAvatar, NButton, NSwitch, NTag } from 'naive-ui'
+import { NAvatar, NButton, NSpace, NSwitch, NTag } from 'naive-ui'
 import { MeCrud, MeModal, MeQueryItem } from '@/components'
 import { useCrud } from '@/composables'
 import { withPermission } from '@/directives'
@@ -122,6 +197,11 @@ defineOptions({ name: 'UserMgt' })
 const $table = ref(null)
 /** QueryBar筛选参数（可选） */
 const queryItems = ref({})
+const exportLoading = ref(false)
+const templateLoading = ref(false)
+const importLoading = ref(false)
+const showImportModal = ref(false)
+const importResult = ref(null)
 
 onMounted(() => {
   $table.value?.handleSearch()
@@ -133,6 +213,11 @@ const genders = [
 ]
 const roles = ref([])
 api.getAllRoles().then(({ data = [] }) => (roles.value = data))
+
+const importFailureColumns = [
+  { title: '行号', key: 'row', width: 80 },
+  { title: '失败原因', key: 'reason', ellipsis: { tooltip: true } },
+]
 
 const {
   modalRef,
@@ -331,5 +416,68 @@ function onSave() {
     })
   }
   handleSave()
+}
+
+async function handleExport() {
+  exportLoading.value = true
+  try {
+    const blob = await api.export(queryItems.value)
+    downloadBlob(blob, 'users.xlsx')
+  }
+  finally {
+    exportLoading.value = false
+  }
+}
+
+async function handleDownloadTemplate() {
+  templateLoading.value = true
+  try {
+    const blob = await api.importTemplate()
+    downloadBlob(blob, 'user_import_template.xlsx')
+  }
+  finally {
+    templateLoading.value = false
+  }
+}
+
+async function handleImportFileChange({ file }) {
+  const rawFile = file?.file
+  if (!rawFile)
+    return
+  if (!rawFile.name.toLowerCase().endsWith('.xlsx')) {
+    $message.warning('请选择 XLSX 文件')
+    return
+  }
+
+  importLoading.value = true
+  importResult.value = null
+  try {
+    const formData = new FormData()
+    formData.append('file', rawFile)
+    const { data } = await api.import(formData)
+    importResult.value = data
+    if (data?.failed) {
+      $message.warning(`导入完成，成功 ${data.success} 条，失败 ${data.failed} 条`)
+    }
+    else {
+      $message.success(`导入成功 ${data?.success ?? 0} 条`)
+    }
+    $table.value?.handleSearch()
+  }
+  finally {
+    importLoading.value = false
+  }
+}
+
+function downloadBlob(data, filename) {
+  const blob = data instanceof Blob ? data : new Blob([data])
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
 }
 </script>

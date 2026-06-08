@@ -5,8 +5,10 @@ let cache = null
 let inflight = null
 
 export async function getBizUploadSpecs() {
-  if (cache) return cache
-  if (inflight) return inflight
+  if (cache)
+    return cache
+  if (inflight)
+    return inflight
   inflight = request
     .get('/upload/specs')
     .then((res) => {

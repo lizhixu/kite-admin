@@ -11,6 +11,9 @@ import { request } from '@/utils'
 export default {
   create: data => request.post('/user', data),
   read: (params = {}) => request.get('/user', { params }),
+  export: (params = {}) => request.get('/user/export', { params, responseType: 'blob' }),
+  importTemplate: () => request.get('/user/import/template', { responseType: 'blob' }),
+  import: data => request.post('/user/import', data, { timeout: 60000 }),
   update: data => request.patch(`/user/${data.id}`, data),
   delete: id => request.delete(`/user/${id}`),
   resetPwd: (id, data) => request.patch(`/user/password/reset/${id}`, data),

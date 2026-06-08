@@ -27,7 +27,9 @@
           </NCard>
 
           <NCard title="客户端信息" size="small" :bordered="true">
-            <p style="word-break: break-all;"><strong>User-Agent：</strong> {{ currentLog.userAgent || '未知' }}</p>
+            <p style="word-break: break-all;">
+              <strong>User-Agent：</strong> {{ currentLog.userAgent || '未知' }}
+            </p>
           </NCard>
         </NSpace>
       </NDrawerContent>

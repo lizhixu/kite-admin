@@ -70,15 +70,18 @@ export const useNotificationStore = defineStore('notification', {
     },
 
     connectSSE() {
-      if (this.abortCtrl) return
+      if (this.abortCtrl)
+        return
 
       const token = localStorage.getItem('vue-naivue-admin_auth')
       let accessToken = ''
       try {
         accessToken = JSON.parse(token)?.accessToken || ''
-      } catch { /* ignore */ }
+      }
+      catch { /* ignore */ }
 
-      if (!accessToken) return
+      if (!accessToken)
+        return
 
       const baseURL = import.meta.env.VITE_AXIOS_BASE_URL || '/api'
       const url = `${baseURL}/message/sse`
@@ -97,7 +100,8 @@ export const useNotificationStore = defineStore('notification', {
 
           while (true) {
             const { done, value } = await reader.read()
-            if (done) break
+            if (done)
+              break
 
             buffer += decoder.decode(value, { stream: true })
             const lines = buffer.split('\n')
@@ -109,19 +113,23 @@ export const useNotificationStore = defineStore('notification', {
             for (const line of lines) {
               if (line.startsWith('event: ')) {
                 eventType = line.slice(7)
-              } else if (line.startsWith('data: ')) {
+              }
+              else if (line.startsWith('data: ')) {
                 eventData = line.slice(6)
-              } else if (line === '' && eventType && eventData) {
+              }
+              else if (line === '' && eventType && eventData) {
                 this._handleSSEEvent(eventType, eventData)
                 eventType = ''
                 eventData = ''
               }
             }
           }
-        } catch (err) {
+        }
+        catch (err) {
           if (err.name !== 'AbortError') {
             setTimeout(() => {
-              if (this.abortCtrl) connect()
+              if (this.abortCtrl)
+                connect()
             }, 5000)
           }
         }
@@ -136,7 +144,8 @@ export const useNotificationStore = defineStore('notification', {
         const parsed = JSON.parse(data)
         if (type === 'init') {
           this.unreadCount = parsed.unreadCount ?? 0
-        } else if (type === 'message') {
+        }
+        else if (type === 'message') {
           this.fetchUnreadCount()
           if (this.inboxMessages.length)
             this.fetchInbox({ pageNo: this.inboxPage, pageSize: this.inboxPageSize })
@@ -146,7 +155,8 @@ export const useNotificationStore = defineStore('notification', {
             duration: 3000,
           })
         }
-      } catch { /* ignore */ }
+      }
+      catch { /* ignore */ }
     },
 
     disconnectSSE() {

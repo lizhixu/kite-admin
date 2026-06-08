@@ -23,13 +23,15 @@ export const useSystemConfigStore = defineStore('system-config', {
           this.applyFavicon()
           this.applyTitle()
         }
-      } catch {
+      }
+      catch {
         // ignore, use defaults
       }
     },
 
     applyFavicon() {
-      if (!this.favicon) return
+      if (!this.favicon)
+        return
       let link = document.querySelector('link[rel="icon"]')
       if (!link) {
         link = document.createElement('link')

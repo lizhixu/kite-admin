@@ -154,7 +154,8 @@ const isAvatarMode = computed(() => props.mode === 'avatar')
 const effectiveMultiple = computed(() => props.multiple && !isAvatarMode.value)
 
 const urls = computed(() => {
-  if (!value.value) return []
+  if (!value.value)
+    return []
   return Array.isArray(value.value) ? value.value.filter(Boolean) : [value.value]
 })
 
@@ -162,7 +163,8 @@ const firstUrl = computed(() => urls.value[0] || '')
 const firstUploading = computed(() => uploading.value[0])
 
 const canAdd = computed(() => {
-  if (!effectiveMultiple.value) return uploading.value.length === 0
+  if (!effectiveMultiple.value)
+    return uploading.value.length === 0
   if (props.maxCount > 0 && urls.value.length + uploading.value.length >= props.maxCount)
     return false
   return true
@@ -183,9 +185,11 @@ onMounted(async () => {
 })
 
 const acceptAttr = computed(() => {
-  if (props.accept) return props.accept
+  if (props.accept)
+    return props.accept
   const s = spec.value
-  if (!s) return ''
+  if (!s)
+    return ''
   const parts = []
   if (s.allowMimePrefix?.length) {
     for (const p of s.allowMimePrefix) parts.push(p.endsWith('/') ? `${p}*` : p)
@@ -199,7 +203,8 @@ const acceptAttr = computed(() => {
 const effectiveMaxSize = computed(() => props.maxSize || spec.value?.maxSizeMB || 0)
 
 function trigger() {
-  if (!canAdd.value) return
+  if (!canAdd.value)
+    return
   inputRef.value?.click()
 }
 
@@ -216,7 +221,8 @@ function validateFile(file) {
   }
   if (s?.allowMimePrefix?.length) {
     const ok = s.allowMimePrefix.some(p => (file.type || '').startsWith(p))
-    if (!ok) return `文件 ${file.name} 类型不允许（${file.type || '未知'}）`
+    if (!ok)
+      return `文件 ${file.name} 类型不允许（${file.type || '未知'}）`
   }
   return ''
 }
@@ -224,10 +230,12 @@ function validateFile(file) {
 async function onFileChange(e) {
   const files = Array.from(e.target.files || [])
   e.target.value = ''
-  if (!files.length) return
+  if (!files.length)
+    return
 
   let picked = files
-  if (!effectiveMultiple.value) picked = [files[0]]
+  if (!effectiveMultiple.value)
+    picked = [files[0]]
   if (effectiveMultiple.value && props.maxCount > 0) {
     const room = Math.max(0, props.maxCount - urls.value.length - uploading.value.length)
     picked = picked.slice(0, room)
@@ -260,12 +268,14 @@ async function doUpload(file) {
     const res = await request.post('/upload', fd, {
       headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (ev) => {
-        if (ev.total) entry.percent = Math.round((ev.loaded / ev.total) * 100)
+        if (ev.total)
+          entry.percent = Math.round((ev.loaded / ev.total) * 100)
       },
     })
     const media = res?.data
     const accessUrl = mediaAccessUrl(media)
-    if (!accessUrl) throw new Error('上传响应缺少 accessUrl')
+    if (!accessUrl)
+      throw new Error('上传响应缺少 accessUrl')
     if (effectiveMultiple.value) {
       const next = Array.isArray(value.value) ? value.value.slice() : []
       next.push(accessUrl)
@@ -281,13 +291,14 @@ async function doUpload(file) {
     console.error(err)
     entry.error = err?.response?.data?.message || err?.message || '上传失败'
     emit('error', err, file)
-    setTimeout(() => removeUploading(id), 3000)
+    setTimeout(removeUploading, 3000, id)
   }
 }
 
 function removeUploading(id) {
   const idx = uploading.value.findIndex(u => u.id === id)
-  if (idx >= 0) uploading.value.splice(idx, 1)
+  if (idx >= 0)
+    uploading.value.splice(idx, 1)
 }
 
 function removeAt(i) {
@@ -311,7 +322,6 @@ function filenameOf(url) {
     return url
   }
 }
-
 </script>
 
 <style scoped>

@@ -15,8 +15,7 @@ export function hasPermissionCode(code) {
     return false
   const permissionStore = usePermissionStore()
   return walkPermissions(permissionStore.permissions, permission =>
-    permission.code === code && permission.enable !== false,
-  )
+    permission.code === code && permission.enable !== false)
 }
 
 export function hasAnyPermissionCode(codes = []) {

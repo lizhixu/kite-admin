@@ -64,8 +64,12 @@
           :loading="toggleLoading"
           @update:value="handleToggle"
         >
-          <template #checked>运行</template>
-          <template #unchecked>暂停</template>
+          <template #checked>
+            运行
+          </template>
+          <template #unchecked>
+            暂停
+          </template>
         </NSwitch>
       </NSpace>
     </NCard>
@@ -148,25 +152,29 @@
         <NGrid :cols="2" :x-gap="12">
           <NGridItem>
             <n-form-item label="并发数" path="concurrency">
-              <n-input-number v-model:value="modalForm.concurrency" :min="1" :max="100" style="width: 100%" />
+              <NInputNumber v-model:value="modalForm.concurrency" :min="1" :max="100" style="width: 100%" />
             </n-form-item>
           </NGridItem>
           <NGridItem>
             <n-form-item label="超时(秒)" path="timeout">
-              <n-input-number v-model:value="modalForm.timeout" :min="1" :max="3600" style="width: 100%" />
+              <NInputNumber v-model:value="modalForm.timeout" :min="1" :max="3600" style="width: 100%" />
             </n-form-item>
           </NGridItem>
         </NGrid>
         <n-form-item label="默认重试次数" path="maxRetries">
-          <n-input-number v-model:value="modalForm.maxRetries" :min="0" :max="10" style="width: 200px" />
+          <NInputNumber v-model:value="modalForm.maxRetries" :min="0" :max="10" style="width: 200px" />
         </n-form-item>
         <n-form-item label="状态" path="status">
           <NSwitch
             :value="modalForm.status === 'RUNNING'"
             @update:value="v => modalForm.status = v ? 'RUNNING' : 'PAUSED'"
           >
-            <template #checked>运行</template>
-            <template #unchecked>暂停</template>
+            <template #checked>
+              运行
+            </template>
+            <template #unchecked>
+              暂停
+            </template>
           </NSwitch>
         </n-form-item>
       </n-form>
@@ -179,19 +187,19 @@
           <n-input
             v-model:value="newJobPayload"
             type="textarea"
-            placeholder='例如 {"orderId": 123, "action": "ship"}'
+            placeholder="例如 {&quot;orderId&quot;: 123, &quot;action&quot;: &quot;ship&quot;}"
             :autosize="{ minRows: 4, maxRows: 10 }"
           />
         </n-form-item>
         <NGrid :cols="2" :x-gap="12">
           <NGridItem>
             <n-form-item label="最大重试次数">
-              <n-input-number v-model:value="newJobRetries" :min="0" :max="10" style="width: 100%" />
+              <NInputNumber v-model:value="newJobRetries" :min="0" :max="10" style="width: 100%" />
             </n-form-item>
           </NGridItem>
           <NGridItem>
             <n-form-item label="优先级">
-              <n-input-number v-model:value="newJobPriority" :min="0" :max="9999" style="width: 100%" />
+              <NInputNumber v-model:value="newJobPriority" :min="0" :max="9999" style="width: 100%" />
             </n-form-item>
           </NGridItem>
         </NGrid>
@@ -210,8 +218,12 @@
       </n-form>
       <template #footer>
         <NSpace justify="end">
-          <NButton @click="addJobVisible = false">取消</NButton>
-          <NButton type="primary" :loading="addingJob" @click="submitNewJob">投递</NButton>
+          <NButton @click="addJobVisible = false">
+            取消
+          </NButton>
+          <NButton type="primary" :loading="addingJob" @click="submitNewJob">
+            投递
+          </NButton>
         </NSpace>
       </template>
     </NModal>
@@ -295,7 +307,8 @@ import {
   NTabs,
   NTag,
 } from 'naive-ui'
-import { MeModal, JsonViewer } from '@/components'
+import { onBeforeUnmount } from 'vue'
+import { JsonViewer, MeModal } from '@/components'
 import { useCrud } from '@/composables'
 import { formatDateTime } from '@/utils'
 import api from './api'
@@ -321,9 +334,12 @@ const jobStatusTag = {
 }
 
 function formatDuration(ms) {
-  if (ms == null) return '-'
-  if (ms < 1000) return `${ms} ms`
-  if (ms < 60_000) return `${(ms / 1000).toFixed(2)} s`
+  if (ms == null)
+    return '-'
+  if (ms < 1000)
+    return `${ms} ms`
+  if (ms < 60_000)
+    return `${(ms / 1000).toFixed(2)} s`
   const m = Math.floor(ms / 60_000)
   const s = ((ms % 60_000) / 1000).toFixed(1)
   return `${m}m ${s}s`
@@ -400,7 +416,7 @@ async function handleKickAll() {
     onPositiveClick: async () => {
       const { data } = await api.kickAll(queueId)
       $message.success(`已复活 ${data?.affected || 0} 条`)
-      loadJobs(jobsPagination.page)
+      loadCurrentJobsPage()
       loadQueue()
     },
   })
@@ -449,7 +465,7 @@ async function submitNewJob() {
     try {
       JSON.parse(newJobPayload.value)
     }
-    catch (e) {
+    catch {
       $message.error('Payload 不是合法 JSON')
       return
     }
@@ -500,9 +516,41 @@ const jobsPagination = reactive({
   },
 })
 
+function loadCurrentJobsPage() {
+  loadJobs(jobsPagination.page)
+}
+
+async function loadJobs(page) {
+  jobsPagination.page = page
+  jobsLoading.value = true
+  try {
+    const { data } = await api.getJobs(queueId, buildJobParams())
+    jobRows.value = data?.pageData || []
+    jobsPagination.itemCount = data?.total || 0
+    let pending = 0
+    let running = 0
+    let success = 0
+    let failed = 0
+    for (const r of jobRows.value) {
+      if (r.status === 'PENDING')
+        pending++
+      else if (r.status === 'RUNNING')
+        running++
+      else if (r.status === 'SUCCESS')
+        success++
+      else if (r.status === 'FAILED')
+        failed++
+    }
+    jobSummary.value = { pending, running, success, failed }
+  }
+  finally {
+    jobsLoading.value = false
+  }
+}
+
 function onAutoRefreshChange(v) {
   if (v) {
-    autoRefreshTimer = setInterval(() => loadJobs(jobsPagination.page), 3000)
+    autoRefreshTimer = setInterval(loadJobs, 3000, jobsPagination.page)
   }
   else {
     stopAutoRefresh()
@@ -523,7 +571,8 @@ function buildJobParams() {
     pageNo: jobsPagination.page,
     pageSize: jobsPagination.pageSize,
   }
-  if (jobStatus.value) params.status = jobStatus.value
+  if (jobStatus.value)
+    params.status = jobStatus.value
   if (jobDateRange.value && jobDateRange.value.length === 2) {
     params.from = new Date(jobDateRange.value[0]).toISOString()
     const endDay = new Date(jobDateRange.value[1])
@@ -531,30 +580,6 @@ function buildJobParams() {
     params.to = endDay.toISOString()
   }
   return params
-}
-
-async function loadJobs(page) {
-  jobsPagination.page = page
-  jobsLoading.value = true
-  try {
-    const { data } = await api.getJobs(queueId, buildJobParams())
-    jobRows.value = data?.pageData || []
-    jobsPagination.itemCount = data?.total || 0
-    let pending = 0
-    let running = 0
-    let success = 0
-    let failed = 0
-    for (const r of jobRows.value) {
-      if (r.status === 'PENDING') pending++
-      else if (r.status === 'RUNNING') running++
-      else if (r.status === 'SUCCESS') success++
-      else if (r.status === 'FAILED') failed++
-    }
-    jobSummary.value = { pending, running, success, failed }
-  }
-  finally {
-    jobsLoading.value = false
-  }
 }
 
 async function handleClearJobs() {
@@ -566,7 +591,8 @@ async function handleClearJobs() {
     negativeText: '取消',
     onPositiveClick: async () => {
       const params = {}
-      if (jobStatus.value) params.status = jobStatus.value
+      if (jobStatus.value)
+        params.status = jobStatus.value
       await api.clearJobs(queueId, params)
       $message.success('清空成功')
       loadJobs(1)

@@ -11,19 +11,19 @@
       </NSpace>
     </template>
 
-    <n-spin :show="loading">
+    <NSpin :show="loading">
       <div class="template-layout">
         <!-- Left: Template List -->
-        <n-card size="small" class="template-sidebar" title="模板列表" :bordered="true">
-          <n-list clickable hoverable :show-divider="false">
-            <n-list-item
+        <NCard size="small" class="template-sidebar" title="模板列表" :bordered="true">
+          <NList clickable hoverable :show-divider="false">
+            <NListItem
               v-for="tmpl in templates"
               :key="tmpl.id"
               class="template-item"
               :class="{ active: selectedId === tmpl.id }"
               @click="selectTemplate(tmpl)"
             >
-              <n-thing>
+              <NThing>
                 <template #header>
                   <div class="flex items-center gap-6">
                     <i class="i-fe:mail text-14" style="color: var(--primary-color);" />
@@ -31,29 +31,32 @@
                   </div>
                 </template>
                 <template #header-extra>
-                  <n-tag v-if="tmpl.isBuiltin" size="tiny" type="success" :bordered="false">内置</n-tag>
+                  <NTag v-if="tmpl.isBuiltin" size="tiny" type="success" :bordered="false">
+                    内置
+                  </NTag>
                 </template>
                 <template #description>
                   <span class="text-12" style="opacity: 0.5">{{ tmpl.scene }}</span>
                 </template>
-              </n-thing>
-            </n-list-item>
-          </n-list>
-        </n-card>
+              </NThing>
+            </NListItem>
+          </NList>
+        </NCard>
 
         <!-- Right: Editor -->
         <div class="template-editor cus-scroll">
           <template v-if="selected">
-            <n-card size="small" :bordered="true">
+            <NCard size="small" :bordered="true">
               <template #header>
                 <div class="flex items-center gap-8">
                   <span>{{ selected.name }}</span>
-                  <n-tag size="small" :bordered="false" type="info">{{ selected.scene }}</n-tag>
+                  <NTag size="small" :bordered="false" type="info">
+                    {{ selected.scene }}
+                  </NTag>
                 </div>
               </template>
 
               <n-form
-                ref="formRef"
                 label-placement="left"
                 label-align="left"
                 :label-width="80"
@@ -75,23 +78,23 @@
                   />
                 </n-form-item>
               </n-form>
-            </n-card>
+            </NCard>
           </template>
 
           <n-empty v-else description="请从左侧选择一个模板" class="py-48" />
         </div>
 
         <!-- Far Right: Variable Reference -->
-        <n-card v-if="selected" size="small" class="template-vars" title="可用变量" :bordered="true">
-          <n-space vertical :size="8">
+        <NCard v-if="selected" size="small" class="template-vars" title="可用变量" :bordered="true">
+          <NSpace vertical :size="8">
             <div v-for="v in variables" :key="v.key" class="var-item">
-              <n-code :code="`{{${v.key}}}`" language="text" />
+              <NCode :code="`{{${v.key}}}`" language="text" />
               <span class="var-desc">{{ v.desc }}</span>
             </div>
-          </n-space>
-        </n-card>
+          </NSpace>
+        </NCard>
       </div>
-    </n-spin>
+    </NSpin>
 
     <!-- Preview Modal -->
     <n-modal
@@ -100,16 +103,18 @@
       title="邮件预览"
       style="width: 700px; max-width: 90vw;"
     >
-      <n-spin :show="previewing">
+      <NSpin :show="previewing">
         <template v-if="previewData">
           <n-descriptions :column="1" bordered size="small" class="mb-12">
-            <n-descriptions-item label="主题">{{ previewData.subject }}</n-descriptions-item>
+            <n-descriptions-item label="主题">
+              {{ previewData.subject }}
+            </n-descriptions-item>
           </n-descriptions>
-          <n-divider style="margin: 0" />
+          <NDivider style="margin: 0" />
           <div class="preview-body" v-html="previewData.htmlBody" />
         </template>
         <n-empty v-else description="暂无预览数据" />
-      </n-spin>
+      </NSpin>
     </n-modal>
   </CommonPage>
 </template>
@@ -147,7 +152,8 @@ async function loadTemplates() {
     if (templates.value.length > 0 && !selectedId.value) {
       selectTemplate(templates.value[0])
     }
-  } catch { /* ignore */ }
+  }
+  catch { /* ignore */ }
   loading.value = false
 }
 
@@ -162,7 +168,8 @@ function selectTemplate(tmpl) {
 }
 
 async function handleSave() {
-  if (!selected.value) return
+  if (!selected.value)
+    return
   saving.value = true
   try {
     const { data } = await api.saveEmailTemplate(selected.value.id, form.value)
@@ -170,7 +177,8 @@ async function handleSave() {
       Object.assign(selected.value, data)
     }
     $message.success('保存成功')
-  } catch { /* ignore */ }
+  }
+  catch { /* ignore */ }
   saving.value = false
 }
 
@@ -180,7 +188,8 @@ watch(showPreview, async (val) => {
     try {
       const { data } = await api.previewEmailTemplate(selected.value.id, {})
       previewData.value = data
-    } catch {
+    }
+    catch {
       previewData.value = null
     }
     previewing.value = false

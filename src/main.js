@@ -13,9 +13,9 @@ import App from './App.vue'
 import { setupDirectives } from './directives'
 
 import { setupRouter } from './router'
-import { setupStore } from './store'
+import { setupStore, useSystemConfigStore } from './store'
 import { setupNaiveDiscreteApi } from './utils'
-import { useSystemConfigStore } from './store'
+
 import '@/styles/reset.css'
 import '@/styles/global.css'
 import 'uno.css'

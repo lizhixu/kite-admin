@@ -103,10 +103,10 @@
 
 <script setup>
 import { BizUploader, MeModal } from '@/components'
-import { mediaAccessUrl } from '@/views/media/library/url'
 import { useForm, useModal } from '@/composables'
 import { useUserStore } from '@/store'
 import { getUserInfo } from '@/store/helper'
+import { mediaAccessUrl } from '@/views/media/library/url'
 import api from './api'
 
 const userStore = useUserStore()
@@ -131,7 +131,8 @@ watch(() => userStore.avatar, v => (avatarUrl.value = v || ''))
 
 async function handleAvatarUploaded(media) {
   const accessUrl = mediaAccessUrl(media)
-  if (!accessUrl) return
+  if (!accessUrl)
+    return
   try {
     await api.updateProfile({ id: userStore.userId, avatar: accessUrl })
     $message.success('头像修改成功')

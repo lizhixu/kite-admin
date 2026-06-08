@@ -104,7 +104,7 @@
                   {{ formatDateTime(t) }}
                 </span>
               </div>
-              <div v-else-if="specError" class="text-12 text-error">
+              <div v-else-if="specError" class="text-error text-12">
                 {{ specError }}
               </div>
             </NSpace>
@@ -122,7 +122,7 @@
             </NGridItem>
             <NGridItem>
               <n-form-item label="超时(秒)" path="timeout">
-                <n-input-number v-model:value="modalForm.timeout" :min="1" :max="3600" style="width: 100%" />
+                <NInputNumber v-model:value="modalForm.timeout" :min="1" :max="3600" style="width: 100%" />
               </n-form-item>
             </NGridItem>
           </NGrid>
@@ -145,8 +145,12 @@
               <NGridItem>
                 <n-form-item label="状态" path="enabled">
                   <NSwitch v-model:value="modalForm.enabled">
-                    <template #checked>启用</template>
-                    <template #unchecked>停用</template>
+                    <template #checked>
+                      启用
+                    </template>
+                    <template #unchecked>
+                      停用
+                    </template>
                   </NSwitch>
                 </n-form-item>
               </NGridItem>
@@ -156,7 +160,7 @@
               <n-input
                 v-model:value="modalForm.httpHeaders"
                 type="textarea"
-                placeholder='JSON 字符串，例如 {"Authorization":"Bearer xxx"}'
+                placeholder="JSON 字符串，例如 {&quot;Authorization&quot;:&quot;Bearer xxx&quot;}"
                 :autosize="{ minRows: 2, maxRows: 4 }"
               />
             </n-form-item>
@@ -204,8 +208,12 @@
 
           <n-form-item v-if="modalForm.type !== 'HTTP'" label="状态" path="enabled">
             <NSwitch v-model:value="modalForm.enabled">
-              <template #checked>启用</template>
-              <template #unchecked>停用</template>
+              <template #checked>
+                启用
+              </template>
+              <template #unchecked>
+                停用
+              </template>
             </NSwitch>
           </n-form-item>
         </n-form>
@@ -216,8 +224,12 @@
     <NDrawer v-model:show="detailVisible" :width="540">
       <NDrawerContent :title="`任务详情 - ${currentTask.name || ''}`" closable>
         <NDescriptions label-placement="left" :column="1" bordered size="small">
-          <NDescriptionsItem label="ID">{{ currentTask.id }}</NDescriptionsItem>
-          <NDescriptionsItem label="任务名">{{ currentTask.name }}</NDescriptionsItem>
+          <NDescriptionsItem label="ID">
+            {{ currentTask.id }}
+          </NDescriptionsItem>
+          <NDescriptionsItem label="任务名">
+            {{ currentTask.name }}
+          </NDescriptionsItem>
           <NDescriptionsItem label="类型">
             <NTag :type="typeTagMap[currentTask.type]" size="small" :bordered="false">
               {{ currentTask.type }}
@@ -238,7 +250,9 @@
           <NDescriptionsItem v-if="currentTask.httpBody" label="请求体">
             <JsonViewer :raw="currentTask.httpBody" />
           </NDescriptionsItem>
-          <NDescriptionsItem label="超时">{{ currentTask.timeout }} 秒</NDescriptionsItem>
+          <NDescriptionsItem label="超时">
+            {{ currentTask.timeout }} 秒
+          </NDescriptionsItem>
           <NDescriptionsItem label="状态">
             <NTag :type="currentTask.enabled ? 'success' : 'default'" size="small" :bordered="false">
               {{ currentTask.enabled ? '启用' : '停用' }}
@@ -250,7 +264,9 @@
           <NDescriptionsItem label="下次执行">
             {{ currentTask.nextRunAt ? formatDateTime(currentTask.nextRunAt) : '-' }}
           </NDescriptionsItem>
-          <NDescriptionsItem label="描述">{{ currentTask.description || '-' }}</NDescriptionsItem>
+          <NDescriptionsItem label="描述">
+            {{ currentTask.description || '-' }}
+          </NDescriptionsItem>
         </NDescriptions>
       </NDrawerContent>
     </NDrawer>
@@ -261,10 +277,18 @@
         <NSpace vertical :size="12">
           <!-- 汇总 chip -->
           <NSpace :size="8" align="center">
-            <NTag size="small" :bordered="false">共 {{ logPagination.itemCount }} 条</NTag>
-            <NTag size="small" type="success" :bordered="false">成功 {{ logSummary.success }}</NTag>
-            <NTag size="small" type="error" :bordered="false">失败 {{ logSummary.failed }}</NTag>
-            <NTag size="small" type="warning" :bordered="false">超时 {{ logSummary.timeout }}</NTag>
+            <NTag size="small" :bordered="false">
+              共 {{ logPagination.itemCount }} 条
+            </NTag>
+            <NTag size="small" type="success" :bordered="false">
+              成功 {{ logSummary.success }}
+            </NTag>
+            <NTag size="small" type="error" :bordered="false">
+              失败 {{ logSummary.failed }}
+            </NTag>
+            <NTag size="small" type="warning" :bordered="false">
+              超时 {{ logSummary.timeout }}
+            </NTag>
             <span v-if="logSummary.avg" class="text-12" style="color: #888">
               平均耗时 {{ formatDuration(logSummary.avg) }}
             </span>
@@ -322,7 +346,9 @@
     <!-- 输出详情 -->
     <NModal v-model:show="outputVisible" preset="card" title="输出详情" style="width: 880px; max-width: 95vw">
       <NDescriptions label-placement="left" :column="2" bordered size="small" class="mb-12">
-        <NDescriptionsItem label="任务名">{{ currentLog.taskName }}</NDescriptionsItem>
+        <NDescriptionsItem label="任务名">
+          {{ currentLog.taskName }}
+        </NDescriptionsItem>
         <NDescriptionsItem label="触发方式">
           {{ currentLog.trigger === 'MANUAL' ? '手动' : '定时' }}
         </NDescriptionsItem>
@@ -331,7 +357,9 @@
             {{ currentLog.status }}
           </NTag>
         </NDescriptionsItem>
-        <NDescriptionsItem label="耗时">{{ formatDuration(currentLog.duration) }}</NDescriptionsItem>
+        <NDescriptionsItem label="耗时">
+          {{ formatDuration(currentLog.duration) }}
+        </NDescriptionsItem>
         <NDescriptionsItem label="开始">
           {{ currentLog.startTime ? formatDateTime(currentLog.startTime) : '-' }}
         </NDescriptionsItem>
@@ -345,11 +373,19 @@
             <!-- 顶部统计 + 级别筛选 -->
             <div class="step-toolbar">
               <NSpace :size="6" align="center">
-                <NTag size="small" :bordered="false">共 {{ parsedSteps.length }} 步</NTag>
-                <NTag size="small" type="info" :bordered="false">INFO {{ stepCounts.INFO }}</NTag>
-                <NTag size="small" type="warning" :bordered="false">WARN {{ stepCounts.WARN }}</NTag>
-                <NTag size="small" type="error" :bordered="false">ERROR {{ stepCounts.ERROR }}</NTag>
-                <span v-if="stepElapsed" class="text-12 text-muted">总耗时 {{ stepElapsed }}</span>
+                <NTag size="small" :bordered="false">
+                  共 {{ parsedSteps.length }} 步
+                </NTag>
+                <NTag size="small" type="info" :bordered="false">
+                  INFO {{ stepCounts.INFO }}
+                </NTag>
+                <NTag size="small" type="warning" :bordered="false">
+                  WARN {{ stepCounts.WARN }}
+                </NTag>
+                <NTag size="small" type="error" :bordered="false">
+                  ERROR {{ stepCounts.ERROR }}
+                </NTag>
+                <span v-if="stepElapsed" class="text-muted text-12">总耗时 {{ stepElapsed }}</span>
               </NSpace>
               <NSpace :size="4">
                 <NTag
@@ -375,7 +411,7 @@
                   :line-type="s.level === 'ERROR' ? 'dashed' : 'default'"
                 >
                   <template #icon>
-                    <i :class="['step-icon', stepIconMap[s.level] || stepIconMap.INFO]" />
+                    <i class="step-icon" :class="[stepIconMap[s.level] || stepIconMap.INFO]" />
                   </template>
                   <template #header>
                     <div class="step-header">
@@ -387,7 +423,9 @@
                       <span class="step-delta">+{{ s.delta }} ms</span>
                     </div>
                   </template>
-                  <div class="step-msg">{{ s.message }}</div>
+                  <div class="step-msg">
+                    {{ s.message }}
+                  </div>
                 </NTimelineItem>
               </NTimeline>
               <NEmpty v-else description="当前级别下无记录" size="small" />
@@ -435,7 +473,8 @@ import {
   NTimeline,
   NTimelineItem,
 } from 'naive-ui'
-import { MeCrud, MeModal, MeQueryItem, JsonViewer } from '@/components'
+import { onBeforeUnmount } from 'vue'
+import { JsonViewer, MeCrud, MeModal, MeQueryItem } from '@/components'
 import { useCrud } from '@/composables'
 import { withPermission } from '@/directives'
 import { formatDateTime } from '@/utils'
@@ -454,12 +493,6 @@ const typeOptions = [
 ]
 
 const httpMethodOptions = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].map(v => ({ label: v, value: v }))
-
-const statusOptions = [
-  { label: '成功', value: 'SUCCESS' },
-  { label: '失败', value: 'FAILED' },
-  { label: '超时', value: 'TIMEOUT' },
-]
 
 const triggerOptions = [
   { label: '手动', value: 'MANUAL' },
@@ -520,7 +553,7 @@ onMounted(() => {
   loadStats()
 })
 
-const { modalRef, modalFormRef, modalAction, modalForm, handleAdd, handleDelete, handleEdit }
+const { modalRef, modalFormRef, modalForm, handleAdd, handleDelete, handleEdit }
   = useCrud({
     name: '任务',
     initForm: {
@@ -728,6 +761,7 @@ async function handleRun(row) {
 
 // ====== 详情抽屉 ======
 const detailVisible = ref(false)
+const currentTask = ref({})
 function openDetail(row) {
   currentTask.value = row
   detailVisible.value = true
@@ -735,7 +769,6 @@ function openDetail(row) {
 
 // ====== 日志抽屉 ======
 const logDrawerVisible = ref(false)
-const currentTask = ref({})
 const logRows = ref([])
 const logLoading = ref(false)
 const logStatus = ref('')
@@ -773,7 +806,7 @@ watch(logDrawerVisible, (v) => {
 
 function onAutoRefreshChange(v) {
   if (v) {
-    autoRefreshTimer = setInterval(() => loadLogs(logPagination.page), 3000)
+    autoRefreshTimer = setInterval(loadLogs, 3000, logPagination.page)
   }
   else {
     stopAutoRefresh()
@@ -801,12 +834,22 @@ async function loadLogs(page) {
     logRows.value = data?.pageData || []
     logPagination.itemCount = data?.total || 0
     // 当前页汇总
-    let success = 0; let failed = 0; let timeout = 0; let sum = 0; let n = 0
+    let success = 0
+    let failed = 0
+    let timeout = 0
+    let sum = 0
+    let n = 0
     for (const r of logRows.value) {
-      if (r.status === 'SUCCESS') success++
-      else if (r.status === 'FAILED') failed++
-      else if (r.status === 'TIMEOUT') timeout++
-      if (typeof r.duration === 'number') { sum += r.duration; n++ }
+      if (r.status === 'SUCCESS')
+        success++
+      else if (r.status === 'FAILED')
+        failed++
+      else if (r.status === 'TIMEOUT')
+        timeout++
+      if (typeof r.duration === 'number') {
+        sum += r.duration
+        n++
+      }
     }
     logSummary.value = { success, failed, timeout, avg: n ? Math.round(sum / n) : 0 }
   }
@@ -833,7 +876,8 @@ const stepLevelFilters = [
 const stepFilter = ref('')
 
 watch(outputVisible, (v) => {
-  if (v) stepFilter.value = ''
+  if (v)
+    stepFilter.value = ''
 })
 
 const parsedSteps = computed(() => {
@@ -868,8 +912,10 @@ const filteredSteps = computed(() =>
 
 const stepCounts = computed(() => {
   const c = { INFO: 0, WARN: 0, ERROR: 0 }
-  for (const s of parsedSteps.value)
-    if (c[s.level] != null) c[s.level]++
+  for (const s of parsedSteps.value) {
+    if (c[s.level] != null)
+      c[s.level]++
+  }
   return c
 })
 
@@ -877,7 +923,7 @@ const stepElapsed = computed(() => {
   const arr = parsedSteps.value
   if (arr.length < 2)
     return ''
-  return formatDuration(arr[arr.length - 1].delta)
+  return formatDuration(arr.at(-1).delta)
 })
 
 function formatStepTime(t) {
@@ -950,11 +996,21 @@ const logColumns = [
 </script>
 
 <style scoped>
-.text-success { color: #18a058; }
-.text-error { color: #d03050; }
-.text-primary { color: #2080f0; }
-.text-12 { font-size: 12px; }
-.text-muted { color: #9ca3af; }
+.text-success {
+  color: #18a058;
+}
+.text-error {
+  color: #d03050;
+}
+.text-primary {
+  color: #2080f0;
+}
+.text-12 {
+  font-size: 12px;
+}
+.text-muted {
+  color: #9ca3af;
+}
 
 .task-form-scroll {
   max-height: calc(100vh - 240px);

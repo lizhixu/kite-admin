@@ -189,7 +189,9 @@ async function loadConfigs() {
       const def = configs.value.find(c => c.isDefault && c.enabled)
       currentConfigId.value = saved?.id ?? def?.id ?? configs.value.find(c => c.enabled)?.id ?? null
     }
-    nextTick(() => { configIdInitialized.value = true })
+    nextTick(() => {
+      configIdInitialized.value = true
+    })
   }
   catch (err) {
     console.error(err)

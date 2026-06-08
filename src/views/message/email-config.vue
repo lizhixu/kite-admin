@@ -11,7 +11,7 @@
       </NSpace>
     </template>
 
-    <n-spin :show="loading">
+    <NSpin :show="loading">
       <n-form
         ref="formRef"
         label-placement="left"
@@ -47,7 +47,7 @@
           <n-switch v-model:value="form.enabled" />
         </n-form-item>
       </n-form>
-    </n-spin>
+    </NSpin>
   </CommonPage>
 </template>
 
@@ -79,7 +79,8 @@ async function loadConfig() {
     if (data) {
       Object.assign(form.value, data)
     }
-  } catch { /* ignore */ }
+  }
+  catch { /* ignore */ }
   loading.value = false
 }
 
@@ -88,7 +89,8 @@ async function handleSave() {
   try {
     await api.saveEmailConfig(form.value)
     $message.success('保存成功')
-  } catch { /* ignore */ }
+  }
+  catch { /* ignore */ }
   saving.value = false
 }
 
@@ -97,7 +99,8 @@ async function handleTest() {
   try {
     await api.testEmailConfig()
     $message.success('测试邮件已发送，请检查收件箱')
-  } catch { /* ignore */ }
+  }
+  catch { /* ignore */ }
   testing.value = false
 }
 

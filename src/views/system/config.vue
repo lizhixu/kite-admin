@@ -8,7 +8,7 @@
       </NSpace>
     </template>
 
-    <n-spin :show="loading">
+    <NSpin :show="loading">
       <n-form
         ref="formRef"
         label-placement="left"
@@ -23,7 +23,7 @@
         <n-form-item label="Logo" path="logo">
           <div class="flex flex-col gap-8">
             <div v-if="form.logo" class="flex items-center gap-8">
-              <img :src="form.logo" alt="Logo" class="h-40 rounded-4 border border-light_border dark:border-dark_border" @error="handleImageError" />
+              <img :src="form.logo" alt="Logo" class="h-40 border border-light_border rounded-4 dark:border-dark_border" @error="handleImageError">
               <NButton size="small" @click="form.logo = ''">
                 清除
               </NButton>
@@ -34,7 +34,7 @@
         <n-form-item label="Favicon" path="favicon">
           <div class="flex flex-col gap-8">
             <div v-if="form.favicon" class="flex items-center gap-8">
-              <img :src="form.favicon" alt="Favicon" class="h-24 rounded-4 border border-light_border dark:border-dark_border" @error="handleImageError" />
+              <img :src="form.favicon" alt="Favicon" class="h-24 border border-light_border rounded-4 dark:border-dark_border" @error="handleImageError">
               <NButton size="small" @click="form.favicon = ''">
                 清除
               </NButton>
@@ -46,7 +46,7 @@
           <n-input v-model:value="form.copyright" type="textarea" placeholder="例如: © 2024 Kite Admin. All rights reserved." :rows="3" />
         </n-form-item>
       </n-form>
-    </n-spin>
+    </NSpin>
   </CommonPage>
 </template>
 
@@ -76,7 +76,8 @@ async function loadConfig() {
     if (data) {
       Object.assign(form.value, data)
     }
-  } catch { /* ignore */ }
+  }
+  catch { /* ignore */ }
   loading.value = false
 }
 
@@ -87,7 +88,8 @@ async function handleSave() {
     // Refresh global system config store
     await systemConfigStore.fetchConfig()
     $message.success('保存成功')
-  } catch { /* ignore */ }
+  }
+  catch { /* ignore */ }
   saving.value = false
 }
 

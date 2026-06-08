@@ -34,7 +34,8 @@ const permissionStore = usePermissionStore()
 
 const activeKey = computed(() => route.meta?.parentKey || route.name)
 const ancestorsOfActiveKey = computed(() => {
-  if (!activeKey.value || !permissionStore.menus.length) return []
+  if (!activeKey.value || !permissionStore.menus.length)
+    return []
   return getAncestors(activeKey.value) || []
 })
 
@@ -88,10 +89,12 @@ function handleExpandedKeysUpdate(keys) {
 /** 查找 targetKey 的所有祖先节点的 key 列表 */
 function getAncestors(targetKey, menus = permissionStore.menus, parents = []) {
   for (const menu of menus) {
-    if (menu.key === targetKey) return parents
+    if (menu.key === targetKey)
+      return parents
     if (menu.children) {
       const result = getAncestors(targetKey, menu.children, [...parents, menu.key])
-      if (result) return result
+      if (result)
+        return result
     }
   }
   return null
