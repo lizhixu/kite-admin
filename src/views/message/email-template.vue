@@ -111,7 +111,14 @@
             </n-descriptions-item>
           </n-descriptions>
           <NDivider style="margin: 0" />
-          <div class="preview-body" v-html="previewData.htmlBody" />
+          <div class="preview-body">
+            <iframe
+              class="preview-frame"
+              title="邮件模板预览"
+              sandbox=""
+              :srcdoc="previewData.htmlBody"
+            />
+          </div>
         </template>
         <n-empty v-else description="暂无预览数据" />
       </NSpin>
@@ -265,14 +272,19 @@ onMounted(loadTemplates)
 .preview-body {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 6px;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.02);
-  max-height: 500px;
-  overflow-y: auto;
+  background: #fff;
+  height: 500px;
+  overflow: hidden;
   margin-top: 12px;
 }
 :root.dark .preview-body {
   border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+}
+
+.preview-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
 }
 </style>
