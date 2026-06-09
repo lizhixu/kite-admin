@@ -16,7 +16,7 @@
     <template #action>
       <div class="flex items-center">
         <NButton :disabled="!userIds.length" type="error" @click="handleBatchRemove()">
-          <i v-if="userIds.length" class="i-material-symbols:delete-outline mr-4 text-18" />
+          <i v-if="userIds.length" class="i-fe:trash-2 mr-4 text-18" />
           批量取消授权
         </NButton>
         <NButton
@@ -25,7 +25,7 @@
           type="primary"
           @click="handleBatchAdd()"
         >
-          <i v-if="userIds.length" class="i-line-md:confirm-circle mr-4 text-18" />
+          <i v-if="userIds.length" class="i-fe:check-circle mr-4 text-18" />
           批量授权
         </NButton>
       </div>
@@ -172,7 +172,7 @@ const columns = [
             },
             {
               default: () => '取消授权',
-              icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
+              icon: () => h('i', { class: 'i-fe:trash-2 text-14' }),
             },
           )
         : h(
@@ -185,7 +185,7 @@ const columns = [
             },
             {
               default: () => '授权',
-              icon: () => h('i', { class: 'i-line-md:confirm-circle text-14' }),
+              icon: () => h('i', { class: 'i-fe:check-circle text-14' }),
             },
           )
     },

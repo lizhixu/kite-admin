@@ -26,7 +26,7 @@
               {{ currentMenu.name }}
             </h3>
             <NButton v-permission="'EditResource'" size="small" type="primary" @click="handleEdit(currentMenu)">
-              <i class="i-material-symbols:edit-outline mr-4 text-14" />
+              <i class="i-fe:edit mr-4 text-14" />
               编辑
             </NButton>
           </div>
@@ -171,7 +171,7 @@ const btnsColumns = [
             },
             {
               default: () => '编辑',
-              icon: () => h('i', { class: 'i-material-symbols:edit-outline text-14' }),
+              icon: () => h('i', { class: 'i-fe:edit text-14' }),
             },
           ),
           'EditResource',
@@ -187,7 +187,7 @@ const btnsColumns = [
             },
             {
               default: () => '删除',
-              icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
+              icon: () => h('i', { class: 'i-fe:trash-2 text-14' }),
             },
           ),
           'DeleteResource',

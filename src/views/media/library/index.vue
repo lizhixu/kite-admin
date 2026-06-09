@@ -87,7 +87,7 @@
                 :disabled="!checkedIds.length"
                 @click="handleBulkDelete(checkedIds, clearChecked)"
               >
-                <i class="i-material-symbols:delete-outline mr-4 text-14" />
+                <i class="i-fe:trash-2 mr-4 text-14" />
                 删除{{ checkedIds.length ? `(${checkedIds.length})` : '' }}
               </NButton>
             </template>

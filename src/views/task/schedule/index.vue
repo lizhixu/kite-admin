@@ -9,10 +9,10 @@
           <i class="i-fe:pause mr-4" />批量停用
         </NButton>
         <NButton v-permission="'DeleteTask'" :disabled="!checkedIds.length" type="error" secondary @click="handleBulkDelete">
-          <i class="i-material-symbols:delete-outline mr-4" />批量删除
+          <i class="i-fe:trash-2 mr-4" />批量删除
         </NButton>
         <NButton v-permission="'AddTask'" type="primary" @click="handleAdd()">
-          <i class="i-material-symbols:add mr-4 text-18" />新增任务
+          <i class="i-fe:plus mr-4 text-18" />新增任务
         </NButton>
       </NSpace>
     </template>
@@ -411,7 +411,9 @@
                   :line-type="s.level === 'ERROR' ? 'dashed' : 'default'"
                 >
                   <template #icon>
-                    <i class="step-icon" :class="[stepIconMap[s.level] || stepIconMap.INFO]" />
+                    <i v-if="s.level === 'ERROR'" class="step-icon i-fe:x" />
+                    <i v-else-if="s.level === 'WARN'" class="step-icon i-fe:alert-triangle" />
+                    <i v-else class="step-icon i-fe:info" />
                   </template>
                   <template #header>
                     <div class="step-header">
@@ -683,7 +685,7 @@ const columns = [
           h(
             NButton,
             { size: 'small', type: 'primary', style: 'margin-left: 8px;', onClick: () => handleEdit(row) },
-            { default: () => '编辑', icon: () => h('i', { class: 'i-material-symbols:edit-outline text-14' }) },
+            { default: () => '编辑', icon: () => h('i', { class: 'i-fe:edit text-14' }) },
           ),
           'EditTask',
         ),
@@ -691,7 +693,7 @@ const columns = [
           h(
             NButton,
             { size: 'small', type: 'error', style: 'margin-left: 8px;', onClick: () => handleDelete(row.id) },
-            { default: () => '删除', icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }) },
+            { default: () => '删除', icon: () => h('i', { class: 'i-fe:trash-2 text-14' }) },
           ),
           'DeleteTask',
         ),
@@ -862,11 +864,6 @@ async function loadLogs(page) {
 const outputVisible = ref(false)
 const currentLog = ref({})
 const stepTypeMap = { INFO: 'info', WARN: 'warning', ERROR: 'error' }
-const stepIconMap = {
-  INFO: 'i-fe:info',
-  WARN: 'i-fe:alert-triangle',
-  ERROR: 'i-fe:x-circle',
-}
 const stepLevelFilters = [
   { label: '全部', value: '' },
   { label: 'INFO', value: 'INFO' },

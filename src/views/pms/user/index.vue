@@ -19,7 +19,7 @@
           导出
         </NButton>
         <NButton v-permission="'AddUser'" type="primary" @click="handleAdd()">
-          <i class="i-material-symbols:add mr-4 text-18" />
+          <i class="i-fe:plus mr-4 text-18" />
           创建新用户
         </NButton>
       </NSpace>
@@ -318,7 +318,7 @@ const columns = [
             secondary: true,
           }, {
             default: () => '超管专属',
-            icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
+            icon: () => h('i', { class: 'i-fe:user-check text-14' }),
           }),
           'SuperAdmin',
         ),
@@ -334,7 +334,7 @@ const columns = [
             },
             {
               default: () => '分配角色',
-              icon: () => h('i', { class: 'i-carbon:user-role text-14' }),
+              icon: () => h('i', { class: 'i-fe:user-check text-14' }),
             },
           ),
           'EditUser',
@@ -350,7 +350,7 @@ const columns = [
             },
             {
               default: () => '重置密码',
-              icon: () => h('i', { class: 'i-radix-icons:reset text-14' }),
+              icon: () => h('i', { class: 'i-fe:rotate-ccw text-14' }),
             },
           ),
           'ResetPassword',
@@ -366,7 +366,7 @@ const columns = [
             },
             {
               default: () => '删除',
-              icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
+              icon: () => h('i', { class: 'i-fe:trash-2 text-14' }),
             },
           ),
           'DeleteUser',

@@ -49,25 +49,25 @@ const options = computed(() => [
     label: '重新加载',
     key: 'reload',
     disabled: props.currentPath !== tabStore.activeTab,
-    icon: () => h('i', { class: 'i-mdi:refresh text-14' }),
+    icon: () => h('i', { class: 'i-fe:refresh-cw text-14' }),
   },
   {
     label: '关闭',
     key: 'close',
     disabled: tabStore.tabs.length <= 1,
-    icon: () => h('i', { class: 'i-mdi:close text-14' }),
+    icon: () => h('i', { class: 'i-fe:x text-14' }),
   },
   {
     label: '关闭其他',
     key: 'close-other',
     disabled: tabStore.tabs.length <= 1,
-    icon: () => h('i', { class: 'i-mdi:arrow-expand-horizontal text-14' }),
+    icon: () => h('i', { class: 'i-fe:maximize-2 text-14' }),
   },
   {
     label: '关闭左侧',
     key: 'close-left',
     disabled: tabStore.tabs.length <= 1 || props.currentPath === tabStore.tabs[0].path,
-    icon: () => h('i', { class: 'i-mdi:arrow-expand-left text-14' }),
+    icon: () => h('i', { class: 'i-fe:arrow-left text-14' }),
   },
   {
     label: '关闭右侧',
@@ -75,7 +75,7 @@ const options = computed(() => [
     disabled:
       tabStore.tabs.length <= 1
       || props.currentPath === tabStore.tabs.at(-1).path,
-    icon: () => h('i', { class: 'i-mdi:arrow-expand-right text-14' }),
+    icon: () => h('i', { class: 'i-fe:arrow-right text-14' }),
   },
 ])
 

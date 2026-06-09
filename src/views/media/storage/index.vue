@@ -3,7 +3,7 @@
     <template #action>
       <NSpace>
         <NButton v-permission="'ManageStorage'" type="primary" @click="handleAdd">
-          <i class="i-material-symbols:add mr-4 text-16" />
+          <i class="i-fe:plus mr-4 text-16" />
           新增存储
         </NButton>
         <NButton @click="refresh">

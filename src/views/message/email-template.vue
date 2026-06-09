@@ -3,7 +3,7 @@
     <template #action>
       <NSpace v-if="selected">
         <NButton v-permission="'SaveEmailTemplate'" type="primary" :loading="saving" @click="handleSave">
-          <i class="i-material-symbols:save-outline mr-4" />保存
+          <i class="i-fe:save mr-4" />保存
         </NButton>
         <NButton @click="showPreview = true">
           <i class="i-fe:eye mr-4" />预览

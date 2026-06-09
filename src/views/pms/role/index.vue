@@ -10,7 +10,7 @@
   <CommonPage>
     <template #action>
       <NButton v-permission="'AddRole'" type="primary" @click="handleOpenAddRole()">
-        <i class="i-material-symbols:add mr-4 text-18" />
+        <i class="i-fe:plus mr-4 text-18" />
         新增角色
       </NButton>
     </template>
@@ -304,7 +304,7 @@ const columns = [
             },
             {
               default: () => '编辑',
-              icon: () => h('i', { class: 'i-material-symbols:edit-outline text-14' }),
+              icon: () => h('i', { class: 'i-fe:edit text-14' }),
             },
           ),
           'EditRole',
@@ -321,7 +321,7 @@ const columns = [
             },
             {
               default: () => '删除',
-              icon: () => h('i', { class: 'i-material-symbols:delete-outline text-14' }),
+              icon: () => h('i', { class: 'i-fe:trash-2 text-14' }),
             },
           ),
           'DeleteRole',

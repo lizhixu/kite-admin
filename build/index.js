@@ -10,6 +10,8 @@ import path from 'node:path'
 import { globSync } from 'glob'
 import dynamicIcons from '../src/assets/icons/dynamic-icons.js'
 
+const WINDOWS_PATH_SEPARATOR_RE = /\\/g
+
 /**
  * @usage 生成icons, 用于 unocss safelist，以支持页面动态渲染自定义图标
  */
@@ -35,5 +37,5 @@ export function getIcons() {
  */
 export function getPagePathes() {
   const files = globSync('src/views/**/*.vue')
-  return files.map(item => `/${path.normalize(item).replace(/\\/g, '/')}`)
+  return files.map(item => `/${path.normalize(item).replace(WINDOWS_PATH_SEPARATOR_RE, '/')}`)
 }

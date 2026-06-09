@@ -22,7 +22,7 @@
                 class="mr-16 flex cursor-pointer items-center text-16 opacity-60 transition-all-300 hover:opacity-40"
                 @click="router.back()"
               >
-                <i class="i-material-symbols:arrow-left-alt" />
+                <i class="i-fe:arrow-left" />
                 <span class="ml-4">返回</span>
               </div>
             </template>

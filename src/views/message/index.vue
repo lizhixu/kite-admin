@@ -3,10 +3,10 @@
     <template #action>
       <NSpace>
         <NButton v-permission="'DeleteMessage'" :disabled="!checkedIds.length" type="error" secondary @click="handleBulkDelete">
-          <i class="i-material-symbols:delete-outline mr-4" />批量删除
+          <i class="i-fe:trash-2 mr-4" />批量删除
         </NButton>
         <NButton v-permission="'SendMessage'" type="primary" @click="handleSend()">
-          <i class="i-material-symbols:add mr-4 text-18" />发送消息
+          <i class="i-fe:plus mr-4 text-18" />发送消息
         </NButton>
       </NSpace>
     </template>

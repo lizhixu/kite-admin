@@ -64,7 +64,7 @@
           <template #label>
             <QuestionLabel
               label="菜单图标"
-              content="如material-symbols:help，图标库地址: https://icones.js.org/collection/all"
+              content="如fe:help-circle，图标库地址: https://icones.js.org/collection/all"
             />
           </template>
           <n-select v-model:value="modalForm.icon" :options="iconOptions" clearable filterable />

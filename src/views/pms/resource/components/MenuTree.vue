@@ -13,7 +13,7 @@
       <div class="flex">
         <n-input v-model:value="pattern" placeholder="搜索" clearable />
         <NButton class="ml-12" type="primary" @click="handleAdd()">
-          <i class="i-material-symbols:add mr-4 text-14" />
+          <i class="i-fe:plus mr-4 text-14" />
           新增
         </NButton>
       </div>
