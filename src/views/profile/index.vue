@@ -79,7 +79,12 @@
     </MeModal>
 
     <MeModal ref="profileModalRef" title="修改资料" width="420px" @ok="handleProfileSave()">
-      <n-form ref="profileFormRef" :model="profileForm" label-placement="left">
+      <n-form
+        ref="profileFormRef"
+        :model="profileForm"
+        label-placement="left"
+        require-mark-placement="left"
+      >
         <n-form-item label="昵称" path="nickName">
           <n-input v-model:value="profileForm.nickName" placeholder="请输入昵称" />
         </n-form-item>
@@ -93,7 +98,7 @@
         <n-form-item label="地址" path="address">
           <n-input v-model:value="profileForm.address" placeholder="请输入地址" />
         </n-form-item>
-        <n-form-item label="邮箱" path="email">
+        <n-form-item label="邮箱" path="email" :rule="emailRules">
           <n-input v-model:value="profileForm.email" placeholder="请输入邮箱" />
         </n-form-item>
       </n-form>
@@ -115,6 +120,14 @@ const required = {
   message: '此为必填项',
   trigger: ['blur', 'change'],
 }
+const emailRules = [
+  required,
+  {
+    type: 'email',
+    message: '请输入正确的邮箱',
+    trigger: ['blur', 'change'],
+  },
+]
 
 const [pwdModalRef] = useModal()
 const [pwdFormRef, pwdForm, pwdValidation] = useForm()
@@ -134,7 +147,7 @@ async function handleAvatarUploaded(media) {
   if (!accessUrl)
     return
   try {
-    await api.updateProfile({ id: userStore.userId, avatar: accessUrl })
+    await api.updateProfile({ id: userStore.userId, avatar: accessUrl, email: userStore.userInfo?.email })
     $message.success('头像修改成功')
     refreshUserInfo()
   }
