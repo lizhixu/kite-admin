@@ -13,6 +13,7 @@
     :date-locale="dateZhCN"
     :theme="appStore.isDark ? darkTheme : undefined"
     :theme-overrides="appStore.naiveThemeOverrides"
+    :hljs="hljs"
   >
     <router-view v-if="Layout" v-slot="{ Component, route: curRoute }">
       <component :is="Layout">
@@ -31,11 +32,15 @@
 </template>
 
 <script setup>
+import hljs from 'highlight.js/lib/core'
+import plaintext from 'highlight.js/lib/languages/plaintext'
 import { darkTheme, dateZhCN, zhCN } from 'naive-ui'
 import { LayoutSetting } from '@/components'
 import { GlobalMediaPicker } from '@/components/picker'
 import { useAppStore, useTabStore } from '@/store'
 import { layoutSettingVisible } from './settings'
+
+hljs.registerLanguage('text', plaintext)
 
 const layouts = new Map()
 function getLayout(name) {

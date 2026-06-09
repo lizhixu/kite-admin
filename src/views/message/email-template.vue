@@ -5,7 +5,7 @@
         <NButton v-permission="'SaveEmailTemplate'" type="primary" :loading="saving" @click="handleSave">
           <i class="i-fe:save mr-4" />保存
         </NButton>
-        <NButton @click="showPreview = true">
+        <NButton @click="handleShowPreview">
           <i class="i-fe:eye mr-4" />预览
         </NButton>
       </NSpace>
@@ -98,10 +98,15 @@
 
     <!-- Preview Modal -->
     <n-modal
-      v-model:show="showPreview"
+      :show="showPreview"
       preset="card"
       title="邮件预览"
       style="width: 700px; max-width: 90vw;"
+      :auto-focus="false"
+      :close-focusable="false"
+      @update:show="handlePreviewVisibleChange"
+      @before-leave="blurActiveElement"
+      @after-leave="handlePreviewAfterLeave"
     >
       <NSpin :show="previewing">
         <template v-if="previewData">
@@ -115,8 +120,9 @@
             <iframe
               class="preview-frame"
               title="邮件模板预览"
+              tabindex="-1"
               sandbox=""
-              :srcdoc="previewData.htmlBody"
+              :srcdoc="previewSrcdoc"
             />
           </div>
         </template>
@@ -132,6 +138,8 @@ import api from './api'
 
 defineOptions({ name: 'EmailTemplate' })
 
+const HTML_TAG_RE = /<html[\s>]/i
+
 const loading = ref(false)
 const saving = ref(false)
 const previewing = ref(false)
@@ -142,6 +150,7 @@ const selected = ref(null)
 const selectedId = ref(null)
 const form = ref({ name: '', subject: '', content: '' })
 const previewData = ref(null)
+const previewSrcdoc = computed(() => buildPreviewDocument(previewData.value?.htmlBody))
 
 const variables = [
   { key: 'title', desc: '消息/邮件标题' },
@@ -187,6 +196,45 @@ async function handleSave() {
   }
   catch { /* ignore */ }
   saving.value = false
+}
+
+function buildPreviewDocument(html) {
+  const content = String(html || '')
+  if (HTML_TAG_RE.test(content))
+    return content
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <base target="_blank" />
+</head>
+<body>${content}</body>
+</html>`
+}
+
+function blurActiveElement() {
+  const activeElement = document.activeElement
+  if (activeElement instanceof HTMLElement)
+    activeElement.blur()
+}
+
+async function handleShowPreview(event) {
+  event?.currentTarget?.blur?.()
+  blurActiveElement()
+  await nextTick()
+  showPreview.value = true
+}
+
+function handlePreviewVisibleChange(value) {
+  blurActiveElement()
+  showPreview.value = value
+}
+
+function handlePreviewAfterLeave() {
+  blurActiveElement()
+  previewData.value = null
 }
 
 watch(showPreview, async (val) => {
